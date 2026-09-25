@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aura — Jewellery, thoughtfully recommended</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="logo">Aura</h1>
+    <p class="tagline">Jewellery recommended for who they are, not just what's in stock.</p>
+  </header>
+
+  <main id="app">
+    <!-- Form Screen -->
+    <section id="form-screen" class="screen active" aria-labelledby="form-heading">
+      <h2 id="form-heading">Tell us who it's for</h2>
+      <form id="advisor-form">
+        <div class="field">
+          <label for="age">Recipient's age: <span id="age-value">25</span></label>
+          <input type="range" id="age" name="age" min="1" max="80" value="25" required />
+        </div>
+
+        <div class="field">
+          <label for="relationship">Relationship</label>
+          <select id="relationship" name="relationship" required>
+            <option value="self">Self</option>
+            <option value="daughter">Daughter</option>
+            <option value="mother">Mother</option>
+            <option value="wife">Wife</option>
+            <option value="friend">Friend</option>
+            <option value="sister">Sister</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="occasion">Occasion</label>
+          <select id="occasion" name="occasion" required>
+            <option value="birthday">Birthday</option>
+            <option value="wedding">Wedding</option>
+            <option value="anniversary">Anniversary</option>
+            <option value="festival">Festival</option>
+            <option value="everyday">Everyday</option>
+            <option value="graduation">Graduation</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="budget">Budget: up to ₹<span id="budget-value">50,000</span></label>
+          <input type="range" id="budget" name="budget" min="1000" max="200000" step="1000" value="50000" required />
+        </div>
+
+        <div class="field">
+          <label for="style">Style preference <span class="optional">(optional)</span></label>
+          <select id="style" name="style">
+            <option value="">No preference</option>
+            <option value="minimal">Minimal</option>
+            <option value="traditional">Traditional</option>
+            <option value="statement">Statement</option>
+            <option value="modern">Modern</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Find recommendations</button>
+      </form>
+    </section>
+
+    <!-- Results Screen -->
+    <section id="results-screen" class="screen" aria-labelledby="results-heading">
+      <div class="results-header">
+        <a href="#" id="back-link" class="back-link">&larr; Back to refine details</a>
+        <h2 id="results-heading">Recommended for you</h2>
+      </div>
+
+      <div class="refilter-bar">
+        <div class="field">
+          <label for="refilter-budget">Budget: up to ₹<span id="refilter-budget-value">50,000</span></label>
+          <input type="range" id="refilter-budget" min="1000" max="200000" step="1000" value="50000" />
+        </div>
+        <div class="field">
+          <label for="refilter-style">Style</label>
+          <select id="refilter-style">
+            <option value="">No preference</option>
+            <option value="minimal">Minimal</option>
+            <option value="traditional">Traditional</option>
+            <option value="statement">Statement</option>
+            <option value="modern">Modern</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="results-grid" class="results-grid"></div>
+      <p id="no-results" class="no-results" hidden>No pieces match these filters — try widening your budget or style.</p>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

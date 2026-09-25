@@ -1,0 +1,18 @@
+{
+  "servers": {
+    "helix": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://helix-mcp.3pillarglobal.com/helix-atlas/mcp",
+        "8765",
+        "--static-oauth-client-info",
+        "{\"client_id\":\"helix-local-mcp-agent\"}",
+        "--header",
+        "x-solution-id: 1048"
+      ]
+    }
+  }
+}
