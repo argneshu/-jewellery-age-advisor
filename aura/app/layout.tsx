@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
+import { AuthHeader } from "@/components/auth/AuthHeader";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${playfairDisplay.variable} ${poppins.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-ink font-sans">
+        <AuthHeader />
         {children}
       </body>
     </html>
