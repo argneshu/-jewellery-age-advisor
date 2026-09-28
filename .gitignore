@@ -154,3 +154,6 @@ SPEC/workflows/
 .claude/skills/
 .claude/claude.md
 # === end AIRE SDLC Agentic Framework ===
+
+# macOS
+.DS_Store
