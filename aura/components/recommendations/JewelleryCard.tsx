@@ -8,6 +8,12 @@ import { whyText } from "@/lib/recommendation-engine";
 import { gradientForCategory } from "@/lib/gradients";
 import type { JewelleryItem, RecommendationPrefs } from "@/types/jewellery";
 
+// The Epic 4 placeholder images (picsum.photos, see public/images/jewellery/
+// CREDITS.md) are random stock photos with no relation to jewellery — worse
+// than showing no photo at all. Flip this once real photos are curated;
+// onError below still covers a genuinely broken/missing file at that point.
+const SHOW_PLACEHOLDER_IMAGES = false;
+
 export function JewelleryCard({
   item,
   prefs,
@@ -16,18 +22,19 @@ export function JewelleryCard({
   prefs: RecommendationPrefs;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
+  const showImage = SHOW_PLACEHOLDER_IMAGES && !imageFailed;
 
   return (
     <Card className="overflow-hidden rounded-aura-xl border-border-soft bg-ivory shadow-soft">
       <div
         className="relative aspect-square w-full"
         style={
-          imageFailed
+          !showImage
             ? { background: gradientForCategory(item.category) }
             : undefined
         }
       >
-        {!imageFailed && (
+        {showImage && (
           <Image
             src={item.imagePath}
             alt={item.imageAlt}
