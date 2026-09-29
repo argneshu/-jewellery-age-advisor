@@ -1,7 +1,7 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 22:00
-**Updated By**: QA
+**Last Updated**: 2026-09-29 22:25
+**Updated By**: DEVOPS
 **Overall Status**: 🟡 IN PROGRESS
 
 ---
@@ -31,6 +31,8 @@
 | Epic 8: Verify Against Original Screenshots | ✅ Done | AIRE_QA | 2026-09-29 | `docs/testing/validation-report-epic-8-2026-09-29.md` — CONDITIONAL PASS | 2026-09-29 22:00 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
 | QA | ✅ Done | AIRE_QA | 2026-09-29 | `docs/testing/validation-report-epic-8-2026-09-29.md` | 2026-09-29 22:00 |
+| DevOps Discovery | ✅ Done | DEVOPS | 2026-09-29 | `docs/deployment/discovery-report.md` (Vercel, no CI pipeline per user direction) | 2026-09-29 22:15 |
+| DevOps Deploy | 🟡 In Progress | DEVOPS | 2026-09-29 | `docs/deployment/deployment-plan.md` — plan/runbooks written; Stories 9.1-9.2 need user action in Vercel/Supabase dashboards (cannot be automated); Story 9.3 smoke test pending a live URL | 2026-09-29 22:25 |
 
 ---
 
@@ -186,9 +188,9 @@ _None yet._
 
 ## Upcoming
 
-1. Epic 8 validation is CONDITIONAL PASS — no blockers, but a documentation decision record for the true-legacy-vs-Migration-Document divergence was added to `docs/requirements.md`; confirm this framing is acceptable
-2. Recommended: a real interactive browser session (sign in, favorite/unfavorite from both `/results` and `/favorites`, verify cross-user isolation) — curl cannot exercise client-side JS or fabricate a valid `@supabase/ssr` session cookie
-3. Epic 9 (deploy) is the next epic per the Migration Document, not yet started
+1. **User action needed**: Story 9.1 (import repo into Vercel, root dir = `aura`) and Story 9.2 (set env vars + Supabase redirect URLs) per `docs/deployment/deployment-plan.md`'s runbook — these are dashboard actions DEVOPS cannot perform
+2. Once a production URL exists, run Story 9.3's smoke test (sign-up, sign-in, browse, favorite, view `/favorites`, logout) against it
+3. Recommended (from Epic 7): a real interactive local-dev browser session to verify the favorite toggle end-to-end before/alongside the production smoke test
 
 ---
 
@@ -213,3 +215,4 @@ _None yet._
 | DEV | Story 7.2 (Favorite Toggle) complete | Idle | 2026-09-29 | 2026-09-29 21:20 |
 | QA | Epic 8 validation complete — CONDITIONAL PASS | Idle | 2026-09-29 | 2026-09-29 22:00 |
 | DEV | Story 7.3 (Favorites Page) complete — Epic 7 all Helix stories done | Idle | 2026-09-29 | 2026-09-29 21:40 |
+| DEVOPS | Discovery + deployment plan/runbooks written (Vercel, no CI) — awaiting user action in Vercel/Supabase dashboards | Idle | 2026-09-29 | 2026-09-29 22:25 |
