@@ -239,3 +239,27 @@ See `docs/architecture/current/01-recommendation-engine-deep-dive.md` → Patter
   to `.md` alongside it) — the authoritative migration spec for all 6 epics. Supersedes this
   document wherever the two conflict; this document should be revisited if the Migration Document
   is later updated or superseded.
+
+## Known Divergence from the True Legacy App (2026-09-29, Epic 8 validation)
+
+`docs/testing/validation-report-epic-8-2026-09-29.md` confirms, with file:line evidence, that the
+Migration Document's own description of "the original app" is inaccurate in three areas, and that
+`aura/` faithfully implemented the Migration Document's (inaccurate) description rather than the
+true legacy code:
+
+1. **Form defaults** — true legacy (`index.html`) defaults to age 25 / budget ₹50,000 / first
+   dropdown option (`self`/`birthday`, no `selected` attribute); `aura/` uses age 28 / budget
+   ₹40,000 / `wife`/`anniversary`, matching the Migration Document's (wrong) claim about the
+   original.
+2. **Design tokens** — every color/radius token in `aura/app/globals.css` differs from the true
+   `styles.css` values (only `cream` matches exactly); `aura/` matches the Migration Document's
+   §7.1 table, which itself mistranscribed the real CSS.
+3. **Recommendation engine** (already documented above, repeated here for completeness) — the
+   heirloom-skew test case's top-6 result set differs between the true `app.js` and
+   `aura/lib/recommendation-engine.ts` by 2 of 6 items; this was an explicit, disclosed Epic 4/6
+   decision (Migration Document §9 item 7), not new.
+
+**None of these should be "fixed" by reverting to the true legacy values** — 3+ shipped epics
+already build on the Migration Document's versions. This note exists so a future reader
+understands which "original" is meant when this document or the Migration Document says
+"matches the original."

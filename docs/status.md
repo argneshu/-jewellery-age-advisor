@@ -1,7 +1,7 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 21:40
-**Updated By**: DEV
+**Last Updated**: 2026-09-29 22:00
+**Updated By**: QA
 **Overall Status**: 🟡 IN PROGRESS
 
 ---
@@ -27,9 +27,10 @@
 | Patterns | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/03-patterns-and-standards-brownfield.md` | 2026-09-29 20:35 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Implementation Plan | ✅ Done | PRODUCT_OWNER | 2026-09-29 | `docs/plans/implementation-plan.md` (Stories 7.1-7.2 local; 7.3-7.4 tracked in Helix) | 2026-09-29 20:50 |
-| Epic 7: Favorites Completion | 🟡 In Progress | AIRE_DEV | 2026-09-29 | 3/3 Helix stories done (7.1, 7.2, 7.3) | 2026-09-29 21:40 |
+| Epic 7: Favorites Completion | ✅ Done | AIRE_DEV | 2026-09-29 | 3/3 Helix stories done (7.1, 7.2, 7.3) | 2026-09-29 21:40 |
+| Epic 8: Verify Against Original Screenshots | ✅ Done | AIRE_QA | 2026-09-29 | `docs/testing/validation-report-epic-8-2026-09-29.md` — CONDITIONAL PASS | 2026-09-29 22:00 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
-| QA | ⏸️ Not Started | AIRE_QA | — | — | 2026-09-29 19:21 |
+| QA | ✅ Done | AIRE_QA | 2026-09-29 | `docs/testing/validation-report-epic-8-2026-09-29.md` | 2026-09-29 22:00 |
 
 ---
 
@@ -175,14 +176,19 @@ _None yet._
 - [x] **Story 7.3: Favorites Page**: Done — 2026-09-29
   - Evidence: `docs/stories-implemented/story-7.3-review.md`; guest 307-redirect confirmed live; empty/populated/stale-reference logic verified against a real Supabase test user; `npm run build`/`test`/`tsc`/`eslint` all clean
   - `JewelleryCard`'s `prefs` prop made optional (no regression to `/results`, which still passes `prefs`)
+- [x] **Epic 8: Verify Against Original Screenshots**: Done — 2026-09-29 (CONDITIONAL PASS)
+  - Evidence: `docs/testing/test-plan-epic-8.md`, `docs/testing/validation-report-epic-8-2026-09-29.md`
+  - 3 medium findings (form defaults, design tokens, heirloom-test-case result set) all traced to
+    Migration Document inaccuracies vs. the true legacy app, not new defects — decision record
+    added to `docs/requirements.md`; 2 low findings (cosmetic/copy) need no action
 
 ---
 
 ## Upcoming
 
-1. All 3 Helix-tracked stories for Epic 7 are implemented — Epic 7 functionally complete
+1. Epic 8 validation is CONDITIONAL PASS — no blockers, but a documentation decision record for the true-legacy-vs-Migration-Document divergence was added to `docs/requirements.md`; confirm this framing is acceptable
 2. Recommended: a real interactive browser session (sign in, favorite/unfavorite from both `/results` and `/favorites`, verify cross-user isolation) — curl cannot exercise client-side JS or fabricate a valid `@supabase/ssr` session cookie
-3. Epic 8 (verify against original screenshots) and Epic 9 (deploy) are the next epics per the Migration Document, not yet started
+3. Epic 9 (deploy) is the next epic per the Migration Document, not yet started
 
 ---
 
@@ -205,4 +211,5 @@ _None yet._
 | PRODUCT_OWNER | Implementation plan (Stories 7.1-7.2 local, 7.3-7.4 in Helix) | Idle | 2026-09-29 | 2026-09-29 20:50 |
 | DEV | Story 7.1 (Favorites API Route) complete | Active | 2026-09-29 | 2026-09-29 21:05 |
 | DEV | Story 7.2 (Favorite Toggle) complete | Idle | 2026-09-29 | 2026-09-29 21:20 |
+| QA | Epic 8 validation complete — CONDITIONAL PASS | Idle | 2026-09-29 | 2026-09-29 22:00 |
 | DEV | Story 7.3 (Favorites Page) complete — Epic 7 all Helix stories done | Idle | 2026-09-29 | 2026-09-29 21:40 |
