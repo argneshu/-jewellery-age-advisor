@@ -157,3 +157,4 @@ SPEC/workflows/
 
 # macOS
 .DS_Store
+docs/plans/.parallel/
