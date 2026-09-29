@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 20:20
+**Last Updated**: 2026-09-29 20:35
 **Updated By**: ARCHITECT
 **Overall Status**: 🟡 IN PROGRESS
 
@@ -24,7 +24,7 @@
 | Deep-Dive | ✅ Done | AIRE_ARCHITECT | 2026-09-29 | `docs/architecture/current/01-recommendation-engine-deep-dive.md` | 2026-09-29 19:35 |
 | Requirements | ✅ Done | ANALYST_PM_BROWNFIELD | 2026-09-29 | `docs/requirements.md` (revised against recovered Migration Document) | 2026-09-29 20:05 |
 | Target Architecture | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/02-target-architecture-brownfield.md` | 2026-09-29 20:20 |
-| Patterns | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
+| Patterns | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/03-patterns-and-standards-brownfield.md` | 2026-09-29 20:35 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Implementation Plan | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
@@ -89,6 +89,19 @@
 - [x] Diagram preview extracted to `docs/architecture-diagrams/02-target-architecture-diagrams-brownfield.md` ✅
 - [x] **Correction found during this pass**: `app/favorites/page.tsx` also does not exist yet (only `.gitkeep`) — the initial system overview incorrectly assumed it did; corrected here and reflected in the target architecture's delta table ✅
 
+### Patterns & Standards — Favorites Completion
+
+**Owner**: ARCHITECT
+**Status**: ✅ Done
+**Started**: 2026-09-29
+
+**Progress**:
+- [x] Phase 1: Extracted existing patterns from deep-dive + system overview; no duplicate/misplaced shared code found (UI components already correctly shared) ✅
+- [x] Phase 2: Loaded `SPEC/rulebooks/aire-design-patterns.md` (OOP-pattern-focused; largely not applicable to this functional codebase) ✅
+- [x] Phase 3: Presented all 8 pattern categories with recommendations; user confirmed in bulk — 6 kept current, 2 new adoptions (API response format as first-route baseline, `.env.example` addition) ✅
+- [x] Phase 4-7.5: Project structure, coding patterns (error/logging/DB/API/config), testing patterns, documentation standards, and File/Module Boundary Map all documented ✅
+- [x] `docs/architecture/design/03-patterns-and-standards-brownfield.md` written and approved ✅
+
 ---
 
 ## Build Cycles
@@ -136,14 +149,15 @@ _None yet._
   - Evidence: `docs/requirements.md`
 - [x] **Target Architecture (Favorites Completion)**: Done — 2026-09-29
   - Evidence: `docs/architecture/design/02-target-architecture-brownfield.md`, `docs/architecture-diagrams/02-target-architecture-diagrams-brownfield.md`
+- [x] **Patterns & Standards (Favorites Completion)**: Done — 2026-09-29
+  - Evidence: `docs/architecture/design/03-patterns-and-standards-brownfield.md`
 
 ---
 
 ## Upcoming
 
-1. **aire-brownfield-patterns** — compare existing vs. recommended patterns, define standards
-2. **aire-build-cycles** → **aire-brownfield-plan**
-3. (Optional, lower priority) **aire-brownfield-deep-dive** for remaining modules — Supabase/auth flow — if needed before implementation planning
+1. **aire-brownfield-plan** — create the implementation plan with stories for the favorites feature (build cycles skipped — single small feature, not needed)
+2. (Optional, lower priority) **aire-brownfield-deep-dive** for remaining modules — Supabase/auth flow — if needed before implementation
 
 ---
 
@@ -162,3 +176,4 @@ _None yet._
 | ARCHITECT | Recommendation-engine deep-dive complete | Idle | 2026-09-29 | 2026-09-29 19:35 |
 | ANALYST_PM_BROWNFIELD | Requirements revised against recovered Migration Document | Idle | 2026-09-29 | 2026-09-29 20:05 |
 | ARCHITECT | Target architecture (favorites completion) complete | Idle | 2026-09-29 | 2026-09-29 20:20 |
+| ARCHITECT | Patterns & standards (favorites completion) complete | Idle | 2026-09-29 | 2026-09-29 20:35 |
