@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 21:05
+**Last Updated**: 2026-09-29 21:20
 **Updated By**: DEV
 **Overall Status**: 🟡 IN PROGRESS
 
@@ -27,7 +27,7 @@
 | Patterns | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/03-patterns-and-standards-brownfield.md` | 2026-09-29 20:35 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Implementation Plan | ✅ Done | PRODUCT_OWNER | 2026-09-29 | `docs/plans/implementation-plan.md` (Stories 7.1-7.2 local; 7.3-7.4 tracked in Helix) | 2026-09-29 20:50 |
-| Epic 7: Favorites Completion | 🟡 In Progress | AIRE_DEV | 2026-09-29 | 1/4 stories done (7.1) | 2026-09-29 21:05 |
+| Epic 7: Favorites Completion | 🟡 In Progress | AIRE_DEV | 2026-09-29 | 2/4 stories done (7.1, 7.2) | 2026-09-29 21:20 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
 | QA | ⏸️ Not Started | AIRE_QA | — | — | 2026-09-29 19:21 |
 
@@ -116,7 +116,7 @@ _None yet — `aire-build-cycles` not run._
 | BUILDID | Story | Title | Start | End | Recorded |
 |---------|-------|-------|-------|-----|----------|
 | NO-CYCLE | 7.1 | Favorites API Route (GET/POST/DELETE) | 2026-09-29 | 2026-09-29 | 2026-09-29 21:05 |
-| NO-CYCLE | 7.2 | Favorite Toggle on JewelleryCard | — | — | 2026-09-29 20:50 |
+| NO-CYCLE | 7.2 | Favorite Toggle on JewelleryCard | 2026-09-29 | 2026-09-29 | 2026-09-29 21:20 |
 
 **Note**: Story 7.3 (Favorites Page) and Story 7.4 (Favorites Feature Integration Verification) are
 tracked in Helix UI, not as local story files — not listed here to avoid duplicate/conflicting
@@ -140,10 +140,10 @@ _None yet._
 
 | Metric | Target | Current | Status | Recorded |
 |--------|--------|---------|--------|----------|
-| Unit Test Coverage | ≥85% | Story 7.1: N/A (no route-handler test harness; DB-level + manual verification per story's own scope) | 🟡 | 2026-09-29 21:05 |
-| Integration Tests | 100% pass | 9/9 existing tests pass (no regression); Story 7.1 manual/DB verification passed | 🟡 | 2026-09-29 21:05 |
-| Code Review | All stories | 1/4 (Story 7.1 self-reviewed) | 🟡 | 2026-09-29 21:05 |
-| Documentation | All stories | 1/4 (`docs/stories-implemented/story-7.1-review.md`) | 🟡 | 2026-09-29 21:05 |
+| Unit Test Coverage | ≥85% | `lib/favorites.ts`: 100% (7 tests, all paths); Story 7.1 route: N/A (no route-handler test harness; DB-level + manual verification per story's own scope) | 🟡 | 2026-09-29 21:20 |
+| Integration Tests | 100% pass | 16/16 tests pass (9 existing + 7 new, no regression); Story 7.1 manual/DB verification passed | 🟡 | 2026-09-29 21:20 |
+| Code Review | All stories | 2/4 (Stories 7.1, 7.2 self-reviewed) | 🟡 | 2026-09-29 21:20 |
+| Documentation | All stories | 2/4 (`docs/stories-implemented/story-7.1-review.md`, `story-7.2-review.md`) | 🟡 | 2026-09-29 21:20 |
 
 ---
 
@@ -165,13 +165,16 @@ _None yet._
 - [x] **Story 7.1: Favorites API Route (GET/POST/DELETE)**: Done — 2026-09-29
   - Evidence: `docs/stories-implemented/story-7.1-review.md`; `npm run test` 9/9 passing; `npm run build` clean; `tsc --noEmit` clean; ESLint clean; DB-level verification of insert/duplicate/select/delete/cross-user-isolation all passing
   - Deviation found & corrected: `aura/.env.local.example` already existed (reused, not duplicated); DB rows are snake_case, mapped to `FavoriteRecord`'s camelCase via a `mapRow` helper (Gate 3 catch)
+- [x] **Story 7.2: Favorite Toggle on JewelleryCard**: Done — 2026-09-29
+  - Evidence: `docs/stories-implemented/story-7.2-review.md`; `npm run test` 16/16 passing (7 new); `npm run build` clean; `tsc --noEmit` clean; ESLint clean
+  - Known limitation (documented in review): curl-based verification cannot exercise client-side JS (auth check, click handler) — code-reviewed against spec + unit-tested at the `lib/favorites.ts` layer; a real interactive browser session is recommended as a follow-up before fully proven
 
 ---
 
 ## Upcoming
 
-1. **aire-dev-implement** — implement Story 7.2 (Favorite Toggle on JewelleryCard)
-2. Pick up Story 7.3 (Favorites Page) and 7.4 (Integration Verification) from Helix when ready to implement them
+1. Pick up Story 7.3 (Favorites Page) and 7.4 (Integration Verification) from Helix when ready to implement them
+2. Recommended: a real interactive browser session to verify Story 7.2's click/toggle/persist flow end-to-end (curl cannot exercise client-side JS)
 
 ---
 
@@ -193,3 +196,4 @@ _None yet._
 | ARCHITECT | Patterns & standards (favorites completion) complete | Idle | 2026-09-29 | 2026-09-29 20:35 |
 | PRODUCT_OWNER | Implementation plan (Stories 7.1-7.2 local, 7.3-7.4 in Helix) | Idle | 2026-09-29 | 2026-09-29 20:50 |
 | DEV | Story 7.1 (Favorites API Route) complete | Active | 2026-09-29 | 2026-09-29 21:05 |
+| DEV | Story 7.2 (Favorite Toggle) complete | Idle | 2026-09-29 | 2026-09-29 21:20 |
