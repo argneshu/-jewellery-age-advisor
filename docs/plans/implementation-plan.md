@@ -85,18 +85,22 @@ One-line objective: Implement the authenticated `app/api/favorites/route.ts` han
 **File**: `docs/plans/stories/epic-7-story-7.2-Favorite-Toggle-JewelleryCard.md`
 One-line objective: Add a favorite/unfavorite control to `JewelleryCard` that redirects guests to `/login` and calls the new API for signed-in users.
 
-### Story 7.3: Favorites Page
-**Tracked in Helix** (not authored as a local story file — see note below).
+### Story 7.3: Favorites Page — ✅ Done (2026-09-29)
+**Tracked in Helix** (solution doc 4936) — implemented directly from the Helix spec; reviewed in `docs/stories-implemented/story-7.3-review.md`.
 One-line objective: Build the protected `/favorites` page that lists the signed-in user's saved items in the existing card-grid style.
 
-### Story 7.4: Favorites Feature Integration Verification
-**Tracked in Helix** (not authored as a local story file — see note below).
-One-line objective: End-to-end manual + automated verification that favorites works across guest/auth states, RLS isolation, and existing-feature regressions.
+### Story 7.4: Favorites Feature Integration Verification — not a Helix story
+This story was this repo's own local addition to `docs/plans/dependency-graph.yml`, not sourced
+from Helix. Checking Helix's Epic 7 (solution doc 4936) confirmed it defines only 3 stories
+(7.1–7.3) — Epic 7 is complete once those three are done. This story's intent (end-to-end
+guest/auth/RLS-isolation verification) is instead covered by the "Next Steps" recommendation in
+each of the 3 stories' review docs (a real interactive browser session), which is more honest
+than manufacturing a 4th story with no source spec.
 
-> **Note (2026-09-29)**: Story authoring stopped after 7.1/7.2 — the user confirmed epics/stories for this
-> project are already tracked in Helix UI. `docs/plans/dependency-graph.yml` still reflects the full
-> 4-story plan (7.1–7.4) for reference, but only 7.1 and 7.2 have local story files under
-> `docs/plans/stories/`. Story 7.3 and 7.4 should be picked up from Helix, not re-authored here.
+> **Note (2026-09-29)**: All 3 Helix-tracked stories (7.1, 7.2, 7.3) are implemented — Epic 7 is
+> functionally complete. `docs/plans/dependency-graph.yml` still lists 4 stories for historical
+> reference (it predates checking Helix's actual Epic 7 content), but only 7.1–7.3 correspond to
+> real, spec-backed work.
 
 ---
 

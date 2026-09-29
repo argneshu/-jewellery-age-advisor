@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,12 +23,17 @@ export function JewelleryCard({
   prefs,
 }: {
   item: JewelleryItem;
-  prefs: RecommendationPrefs;
+  // Optional: the favorites page (Story 7.3) has no recommendation-run
+  // context (age/relationship/occasion/budget/style) to generate a why-text
+  // from, since a favorite can outlive the search that produced it.
+  prefs?: RecommendationPrefs;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = SHOW_PLACEHOLDER_IMAGES && !imageFailed;
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
 
@@ -57,7 +62,9 @@ export function JewelleryCard({
 
   async function handleToggleFavorite() {
     if (!isSignedIn) {
-      router.push("/login");
+      const query = searchParams.toString();
+      const redirectedFrom = query ? `${pathname}?${query}` : pathname;
+      router.push(`/login?redirectedFrom=${encodeURIComponent(redirectedFrom)}`);
       return;
     }
     const nextState = !isFavorited;
@@ -110,7 +117,7 @@ export function JewelleryCard({
         </p>
         <h3 className="font-serif text-lg text-ink">{item.name}</h3>
         <p className="text-base font-semibold text-gold">{formatINR(item.price)}</p>
-        <p className="text-sm text-ink-soft">{whyText(item, prefs)}</p>
+        {prefs && <p className="text-sm text-ink-soft">{whyText(item, prefs)}</p>}
       </CardContent>
     </Card>
   );

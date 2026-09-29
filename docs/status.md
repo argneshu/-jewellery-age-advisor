@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 21:20
+**Last Updated**: 2026-09-29 21:40
 **Updated By**: DEV
 **Overall Status**: 🟡 IN PROGRESS
 
@@ -27,7 +27,7 @@
 | Patterns | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/03-patterns-and-standards-brownfield.md` | 2026-09-29 20:35 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Implementation Plan | ✅ Done | PRODUCT_OWNER | 2026-09-29 | `docs/plans/implementation-plan.md` (Stories 7.1-7.2 local; 7.3-7.4 tracked in Helix) | 2026-09-29 20:50 |
-| Epic 7: Favorites Completion | 🟡 In Progress | AIRE_DEV | 2026-09-29 | 2/4 stories done (7.1, 7.2) | 2026-09-29 21:20 |
+| Epic 7: Favorites Completion | 🟡 In Progress | AIRE_DEV | 2026-09-29 | 3/3 Helix stories done (7.1, 7.2, 7.3) | 2026-09-29 21:40 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
 | QA | ⏸️ Not Started | AIRE_QA | — | — | 2026-09-29 19:21 |
 
@@ -117,10 +117,13 @@ _None yet — `aire-build-cycles` not run._
 |---------|-------|-------|-------|-----|----------|
 | NO-CYCLE | 7.1 | Favorites API Route (GET/POST/DELETE) | 2026-09-29 | 2026-09-29 | 2026-09-29 21:05 |
 | NO-CYCLE | 7.2 | Favorite Toggle on JewelleryCard | 2026-09-29 | 2026-09-29 | 2026-09-29 21:20 |
+| NO-CYCLE | 7.3 | Favorites Page | 2026-09-29 | 2026-09-29 | 2026-09-29 21:40 |
 
-**Note**: Story 7.3 (Favorites Page) and Story 7.4 (Favorites Feature Integration Verification) are
-tracked in Helix UI, not as local story files — not listed here to avoid duplicate/conflicting
-tracking. `docs/plans/dependency-graph.yml` still has all 4 for reference.
+**Note**: Story 7.3's spec was pulled from Helix (solution document 4936) rather than a local
+story file, per user direction — reviewed in `docs/stories-implemented/story-7.3-review.md`.
+Helix's Epic 7 contains only 3 stories (7.1-7.3) — the "Story 7.4 Integration Verification" in
+`docs/plans/dependency-graph.yml` was this repo's own local addition, not a Helix-tracked story;
+its intent is covered by the "Next Steps" recommendation in each story's review doc instead.
 
 ---
 
@@ -140,10 +143,10 @@ _None yet._
 
 | Metric | Target | Current | Status | Recorded |
 |--------|--------|---------|--------|----------|
-| Unit Test Coverage | ≥85% | `lib/favorites.ts`: 100% (7 tests, all paths); Story 7.1 route: N/A (no route-handler test harness; DB-level + manual verification per story's own scope) | 🟡 | 2026-09-29 21:20 |
-| Integration Tests | 100% pass | 16/16 tests pass (9 existing + 7 new, no regression); Story 7.1 manual/DB verification passed | 🟡 | 2026-09-29 21:20 |
-| Code Review | All stories | 2/4 (Stories 7.1, 7.2 self-reviewed) | 🟡 | 2026-09-29 21:20 |
-| Documentation | All stories | 2/4 (`docs/stories-implemented/story-7.1-review.md`, `story-7.2-review.md`) | 🟡 | 2026-09-29 21:20 |
+| Unit Test Coverage | ≥85% | `lib/favorites.ts`: 100% (7 tests, all paths); Story 7.1 route + Story 7.3 page: N/A (no route/RSC test harness; DB-level + manual verification per each story's scope) | 🟡 | 2026-09-29 21:40 |
+| Integration Tests | 100% pass | 16/16 tests pass (9 existing + 7 new, no regression); all 3 stories' DB-level/manual verification passed | 🟡 | 2026-09-29 21:40 |
+| Code Review | All stories | 3/3 Helix stories self-reviewed (7.1, 7.2, 7.3) | ✅ | 2026-09-29 21:40 |
+| Documentation | All stories | 3/3 (`docs/stories-implemented/story-7.1-review.md`, `story-7.2-review.md`, `story-7.3-review.md`) | ✅ | 2026-09-29 21:40 |
 
 ---
 
@@ -168,13 +171,18 @@ _None yet._
 - [x] **Story 7.2: Favorite Toggle on JewelleryCard**: Done — 2026-09-29
   - Evidence: `docs/stories-implemented/story-7.2-review.md`; `npm run test` 16/16 passing (7 new); `npm run build` clean; `tsc --noEmit` clean; ESLint clean
   - Known limitation (documented in review): curl-based verification cannot exercise client-side JS (auth check, click handler) — code-reviewed against spec + unit-tested at the `lib/favorites.ts` layer; a real interactive browser session is recommended as a follow-up before fully proven
+  - Correction from Helix's authoritative AC: redirect now preserves `redirectedFrom=<pathname+query>` (was a bare `/login` push before this was caught)
+- [x] **Story 7.3: Favorites Page**: Done — 2026-09-29
+  - Evidence: `docs/stories-implemented/story-7.3-review.md`; guest 307-redirect confirmed live; empty/populated/stale-reference logic verified against a real Supabase test user; `npm run build`/`test`/`tsc`/`eslint` all clean
+  - `JewelleryCard`'s `prefs` prop made optional (no regression to `/results`, which still passes `prefs`)
 
 ---
 
 ## Upcoming
 
-1. Pick up Story 7.3 (Favorites Page) and 7.4 (Integration Verification) from Helix when ready to implement them
-2. Recommended: a real interactive browser session to verify Story 7.2's click/toggle/persist flow end-to-end (curl cannot exercise client-side JS)
+1. All 3 Helix-tracked stories for Epic 7 are implemented — Epic 7 functionally complete
+2. Recommended: a real interactive browser session (sign in, favorite/unfavorite from both `/results` and `/favorites`, verify cross-user isolation) — curl cannot exercise client-side JS or fabricate a valid `@supabase/ssr` session cookie
+3. Epic 8 (verify against original screenshots) and Epic 9 (deploy) are the next epics per the Migration Document, not yet started
 
 ---
 
@@ -197,3 +205,4 @@ _None yet._
 | PRODUCT_OWNER | Implementation plan (Stories 7.1-7.2 local, 7.3-7.4 in Helix) | Idle | 2026-09-29 | 2026-09-29 20:50 |
 | DEV | Story 7.1 (Favorites API Route) complete | Active | 2026-09-29 | 2026-09-29 21:05 |
 | DEV | Story 7.2 (Favorite Toggle) complete | Idle | 2026-09-29 | 2026-09-29 21:20 |
+| DEV | Story 7.3 (Favorites Page) complete — Epic 7 all Helix stories done | Idle | 2026-09-29 | 2026-09-29 21:40 |
