@@ -26,7 +26,7 @@
 | Target Architecture | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/02-target-architecture-brownfield.md` | 2026-09-29 20:20 |
 | Patterns | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/03-patterns-and-standards-brownfield.md` | 2026-09-29 20:35 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
-| Implementation Plan | ✅ Done | PRODUCT_OWNER | 2026-09-29 | `docs/plans/implementation-plan.md` (Stories 1.1-1.2 local; 1.3-1.4 tracked in Helix) | 2026-09-29 20:50 |
+| Implementation Plan | ✅ Done | PRODUCT_OWNER | 2026-09-29 | `docs/plans/implementation-plan.md` (Stories 7.1-7.2 local; 7.3-7.4 tracked in Helix) | 2026-09-29 20:50 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
 | QA | ⏸️ Not Started | AIRE_QA | — | — | 2026-09-29 19:21 |
 
@@ -114,10 +114,10 @@ _None yet — `aire-build-cycles` not run._
 
 | BUILDID | Story | Title | Start | End | Recorded |
 |---------|-------|-------|-------|-----|----------|
-| NO-CYCLE | 1.1 | Favorites API Route (GET/POST/DELETE) | — | — | 2026-09-29 20:50 |
-| NO-CYCLE | 1.2 | Favorite Toggle on JewelleryCard | — | — | 2026-09-29 20:50 |
+| NO-CYCLE | 7.1 | Favorites API Route (GET/POST/DELETE) | — | — | 2026-09-29 20:50 |
+| NO-CYCLE | 7.2 | Favorite Toggle on JewelleryCard | — | — | 2026-09-29 20:50 |
 
-**Note**: Story 1.3 (Favorites Page) and Story 1.4 (Favorites Feature Integration Verification) are
+**Note**: Story 7.3 (Favorites Page) and Story 7.4 (Favorites Feature Integration Verification) are
 tracked in Helix UI, not as local story files — not listed here to avoid duplicate/conflicting
 tracking. `docs/plans/dependency-graph.yml` still has all 4 for reference.
 
@@ -159,15 +159,15 @@ _None yet._
 - [x] **Patterns & Standards (Favorites Completion)**: Done — 2026-09-29
   - Evidence: `docs/architecture/design/03-patterns-and-standards-brownfield.md`
 - [x] **Implementation Plan (Favorites Completion)**: Done — 2026-09-29
-  - Evidence: `docs/plans/implementation-plan.md`, `docs/plans/dependency-graph.yml`, `docs/plans/stories/epic-1-story-1.1-*.md`, `docs/plans/stories/epic-1-story-1.2-*.md`
-  - Note: Stories 1.3/1.4 tracked in Helix per user direction, not authored as local files
+  - Evidence: `docs/plans/implementation-plan.md`, `docs/plans/dependency-graph.yml`, `docs/plans/stories/epic-7-story-7.1-*.md`, `docs/plans/stories/epic-7-story-7.2-*.md`
+  - Note: Stories 7.3/7.4 tracked in Helix per user direction, not authored as local files
 
 ---
 
 ## Upcoming
 
-1. **aire-dev-implement** — implement Story 1.1 (Favorites API Route), then 1.2 (Favorite Toggle)
-2. Pick up Story 1.3 (Favorites Page) and 1.4 (Integration Verification) from Helix when ready to implement them
+1. **aire-dev-implement** — implement Story 7.1 (Favorites API Route), then 7.2 (Favorite Toggle)
+2. Pick up Story 7.3 (Favorites Page) and 7.4 (Integration Verification) from Helix when ready to implement them
 
 ---
 
@@ -187,4 +187,4 @@ _None yet._
 | ANALYST_PM_BROWNFIELD | Requirements revised against recovered Migration Document | Idle | 2026-09-29 | 2026-09-29 20:05 |
 | ARCHITECT | Target architecture (favorites completion) complete | Idle | 2026-09-29 | 2026-09-29 20:20 |
 | ARCHITECT | Patterns & standards (favorites completion) complete | Idle | 2026-09-29 | 2026-09-29 20:35 |
-| PRODUCT_OWNER | Implementation plan (Stories 1.1-1.2 local, 1.3-1.4 in Helix) | Idle | 2026-09-29 | 2026-09-29 20:50 |
+| PRODUCT_OWNER | Implementation plan (Stories 7.1-7.2 local, 7.3-7.4 in Helix) | Idle | 2026-09-29 | 2026-09-29 20:50 |

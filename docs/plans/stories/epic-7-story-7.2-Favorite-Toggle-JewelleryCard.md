@@ -1,22 +1,22 @@
-### Story 1.2: Favorite Toggle on JewelleryCard
+### Story 7.2: Favorite Toggle on JewelleryCard
 
-**File**: `docs/plans/stories/epic-1-story-1.2-Favorite-Toggle-JewelleryCard.md`
+**File**: `docs/plans/stories/epic-7-story-7.2-Favorite-Toggle-JewelleryCard.md`
 
-**Epic**: 1 - FAVORITES COMPLETION | **ID**: 1.2 | **Date**: 2026-09-29 | **Jira**: LOCAL | **GitHub**: LOCAL
+**Epic**: 7 - FAVORITES COMPLETION | **ID**: 7.2 | **Date**: 2026-09-29 | **Jira**: LOCAL | **GitHub**: LOCAL
 **Wave**: 2
-**Requires**: [1.1]
-**Enables**: [1.4]
+**Requires**: [7.1]
+**Enables**: [7.4]
 **Files Touched**:
   - aura/lib/favorites.ts
   - aura/lib/favorites.test.ts
   - aura/components/recommendations/JewelleryCard.tsx
 **Roles Ref**: docs/requirements.md#roles--permissions-matrix — personas this story differentiates: [Guest, Authenticated User]
-**QA Candidate**: Yes — **Observable:** a heart-shaped toggle on every `JewelleryCard` that reflects and changes the signed-in user's favorite status for that item. **Mechanism:** `lib/favorites.ts` wraps `fetch` calls to `/api/favorites` (built in Story 1.1); the card checks auth client-side (`lib/supabase/client.ts`) and, if signed in, fetches current favorite status on mount and calls add/remove on click. **Authz & preconditions:** Guest clicking the toggle is redirected to `/login` instead of calling the API; Authenticated User's toggle calls the real API. **Edge/idempotency:** a failed add/remove reverts the optimistic UI state; rapid double-click doesn't produce two conflicting requests landing out of order. **Regression:** must not change `JewelleryCard`'s existing image/gradient/why-text rendering, and must not break `ResultsGrid`'s layout.
+**QA Candidate**: Yes — **Observable:** a heart-shaped toggle on every `JewelleryCard` that reflects and changes the signed-in user's favorite status for that item. **Mechanism:** `lib/favorites.ts` wraps `fetch` calls to `/api/favorites` (built in Story 7.1); the card checks auth client-side (`lib/supabase/client.ts`) and, if signed in, fetches current favorite status on mount and calls add/remove on click. **Authz & preconditions:** Guest clicking the toggle is redirected to `/login` instead of calling the API; Authenticated User's toggle calls the real API. **Edge/idempotency:** a failed add/remove reverts the optimistic UI state; rapid double-click doesn't produce two conflicting requests landing out of order. **Regression:** must not change `JewelleryCard`'s existing image/gradient/why-text rendering, and must not break `ResultsGrid`'s layout.
 
 #### 👤 User Reference
 
 **Description**:
-This story puts an actual "favorite" button on every jewellery card — the heart icon you'd expect on any shopping app. If you're signed in, tapping the heart saves that piece to your favorites (Story 1.1's API does the actual saving); tapping an already-favorited heart un-saves it. The heart also shows the correct state when the page loads — if you already favorited something on a previous visit, it shows as favorited right away, not as a surprise toggle you have to click twice. If you're not signed in, tapping the heart doesn't try to save anything (which would fail anyway) — it takes you straight to the login page instead, so you understand why nothing happened and can sign in to try again. If saving or removing fails for any reason (e.g., a network hiccup), the heart visually reverts to its previous state rather than showing an incorrect "saved" state that isn't actually true.
+This story puts an actual "favorite" button on every jewellery card — the heart icon you'd expect on any shopping app. If you're signed in, tapping the heart saves that piece to your favorites (Story 7.1's API does the actual saving); tapping an already-favorited heart un-saves it. The heart also shows the correct state when the page loads — if you already favorited something on a previous visit, it shows as favorited right away, not as a surprise toggle you have to click twice. If you're not signed in, tapping the heart doesn't try to save anything (which would fail anyway) — it takes you straight to the login page instead, so you understand why nothing happened and can sign in to try again. If saving or removing fails for any reason (e.g., a network hiccup), the heart visually reverts to its previous state rather than showing an incorrect "saved" state that isn't actually true.
 
 **Acceptance Criteria** (plain-English bullets):
 - Every jewellery card shows a heart icon.
@@ -75,7 +75,7 @@ flowchart TD
 - `aura/components/auth/LoginForm.tsx`, `aura/components/auth/LogoutButton.tsx` — existing `"use client"` + `lib/supabase/client.ts` pattern to mirror
 
 **Description**:
-Adds `aura/lib/favorites.ts` with three functions (`listFavorites`, `addFavorite`, `removeFavorite`) that wrap `fetch` calls to the Story 1.1 API, matching the client-helper pattern decided in the target architecture (Technical Decision #1). Modifies `aura/components/recommendations/JewelleryCard.tsx` to add a heart toggle: on mount, check auth state via the existing browser Supabase client (same pattern as `LoginForm`), and if signed in, call `listFavorites()` to determine this item's initial state. On click, redirect guests to `/login`; for signed-in users, optimistically flip state and call `addFavorite`/`removeFavorite`, reverting on failure. Use the `Heart` icon from `lucide-react` (already a dependency) — filled when favorited, outline when not.
+Adds `aura/lib/favorites.ts` with three functions (`listFavorites`, `addFavorite`, `removeFavorite`) that wrap `fetch` calls to the Story 7.1 API, matching the client-helper pattern decided in the target architecture (Technical Decision #1). Modifies `aura/components/recommendations/JewelleryCard.tsx` to add a heart toggle: on mount, check auth state via the existing browser Supabase client (same pattern as `LoginForm`), and if signed in, call `listFavorites()` to determine this item's initial state. On click, redirect guests to `/login`; for signed-in users, optimistically flip state and call `addFavorite`/`removeFavorite`, reverting on failure. Use the `Heart` icon from `lucide-react` (already a dependency) — filled when favorited, outline when not.
 
 **Design Tokens** (FE):
 - Icon: `lucide-react`'s `Heart` component, `size={20}` to match the card's existing icon-less minimal chrome.
@@ -104,9 +104,9 @@ Adds `aura/lib/favorites.ts` with three functions (`listFavorites`, `addFavorite
 | Authenticated User | favorites:create-own / favorites:delete-own | (client calls) POST/DELETE /api/favorites | yes | n/a (API-level 409/404 handled by lib/favorites.ts throwing, caught by the card's revert logic) | heart toggles |
 | Guest | — | N/A — client never calls the API | n/a | redirected client-side, no API call attempted | clicking heart navigates to /login |
 
-- **Enforcement point(s)**: actual authorization is enforced server-side in Story 1.1's route handler + RLS — this story's client-side auth check is a UX convenience (avoid a pointless API round-trip and 401 for guests), not a security boundary. The security boundary remains Story 1.1's server-side check.
+- **Enforcement point(s)**: actual authorization is enforced server-side in Story 7.1's route handler + RLS — this story's client-side auth check is a UX convenience (avoid a pointless API round-trip and 401 for guests), not a security boundary. The security boundary remains Story 7.1's server-side check.
 - **Denied-access contract**: guest never reaches the API; if a signed-in user's session expires mid-interaction, the underlying `fetch` returns 401 and `lib/favorites.ts` throws — the card's existing revert-on-failure logic handles this the same as any other failure (reverts the optimistic UI state).
-- **Scope derivation**: N/A at this layer — `lib/favorites.ts` never sends a user identifier; the server derives it from the session cookie (Story 1.1).
+- **Scope derivation**: N/A at this layer — `lib/favorites.ts` never sends a user identifier; the server derives it from the session cookie (Story 7.1).
 
 **System responses + error cases**:
 
@@ -124,11 +124,11 @@ Adds `aura/lib/favorites.ts` with three functions (`listFavorites`, `addFavorite
 
 **QA-observable behaviour**:
 - A signed-in user who favorited item 17 in a previous session sees item 17's heart pre-filled on next page load, without clicking anything.
-- Clicking favorite → refresh the page (or re-mount) → heart is still filled (confirms the add actually persisted via Story 1.1's API, not just local state).
+- Clicking favorite → refresh the page (or re-mount) → heart is still filled (confirms the add actually persisted via Story 7.1's API, not just local state).
 - Simulate an API failure (e.g., mock `fetch` to reject) → heart visually reverts within the same interaction, no lingering "favorited" state that isn't backed by the server.
 - **What does NOT change**: the card's image/gradient block, category/name/price/why-text rendering, and `ResultsGrid`'s overall grid layout are pixel-identical to before this story for a signed-out user (whose heart always renders unfavorited).
 
-**Prerequisites**: Story 1.1 complete (API route must exist and work).
+**Prerequisites**: Story 7.1 complete (API route must exist and work).
 
 **Context**: `aura/components/recommendations/JewelleryCard.tsx`, `aura/lib/supabase/client.ts`, `aura/components/auth/LoginForm.tsx` (auth-check pattern reference), `aura/types/auth.ts` (`FavoriteRecord`).
 

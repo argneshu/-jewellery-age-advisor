@@ -8,79 +8,79 @@ team_size: 1
 
 shared_files:
   # Baseline files that exist in aura/ and are shared across the whole
-  # project even though no story in this Epic 1 plan modifies them directly.
+  # project even though no story in this Epic 7 plan modifies them directly.
   - aura/package.json
   - aura/tsconfig.json
   - aura/package-lock.json
 
 stories:
-  - id: "1.1"
+  - id: "7.1"
     title: Favorites API Route (GET/POST/DELETE)
-    epic: 1
+    epic: 7
     jira: LOCAL
     github: null
     azure_devops: null
     wave: 1
     requires: []
-    enables: ["1.2", "1.3"]
+    enables: ["7.2", "7.3"]
     files_touched:
       - aura/app/api/favorites/route.ts
       - aura/.env.example
 
-  - id: "1.2"
+  - id: "7.2"
     title: Favorite Toggle on JewelleryCard
-    epic: 1
+    epic: 7
     jira: LOCAL
     github: null
     azure_devops: null
     wave: 2
-    requires: ["1.1"]
-    enables: ["1.4"]
+    requires: ["7.1"]
+    enables: ["7.4"]
     files_touched:
       - aura/lib/favorites.ts
       - aura/lib/favorites.test.ts
       - aura/components/recommendations/JewelleryCard.tsx
 
-  - id: "1.3"
+  - id: "7.3"
     title: Favorites Page
-    epic: 1
+    epic: 7
     jira: LOCAL
     github: null
     azure_devops: null
     wave: 2
-    requires: ["1.1"]
-    enables: ["1.4"]
+    requires: ["7.1"]
+    enables: ["7.4"]
     files_touched:
       - aura/app/favorites/page.tsx
 
-  - id: "1.4"
+  - id: "7.4"
     title: Favorites Feature Integration Verification
-    epic: 1
+    epic: 7
     jira: LOCAL
     github: null
     azure_devops: null
     wave: 3
-    requires: ["1.2", "1.3"]
+    requires: ["7.2", "7.3"]
     enables: []
     files_touched: []
     # Verification-only story: no new/modified files, just manual + automated
-    # checks across everything 1.1-1.3 produced.
+    # checks across everything 7.1-7.3 produced.
 
 waves:
   - wave: 1
-    stories: ["1.1"]
+    stories: ["7.1"]
     assignments:
       - dev: 1
-        stories: ["1.1"]
+        stories: ["7.1"]
 
   - wave: 2
-    stories: ["1.2", "1.3"]
+    stories: ["7.2", "7.3"]
     assignments:
       - dev: 1
-        stories: ["1.2", "1.3"]
+        stories: ["7.2", "7.3"]
 
   - wave: 3
-    stories: ["1.4"]
+    stories: ["7.4"]
     assignments:
       - dev: 1
-        stories: ["1.4"]
+        stories: ["7.4"]

@@ -1,11 +1,11 @@
-### Story 1.1: Favorites API Route (GET/POST/DELETE)
+### Story 7.1: Favorites API Route (GET/POST/DELETE)
 
-**File**: `docs/plans/stories/epic-1-story-1.1-Favorites-API-Route.md`
+**File**: `docs/plans/stories/epic-7-story-7.1-Favorites-API-Route.md`
 
-**Epic**: 1 - FAVORITES COMPLETION | **ID**: 1.1 | **Date**: 2026-09-29 | **Jira**: LOCAL | **GitHub**: LOCAL
+**Epic**: 7 - FAVORITES COMPLETION | **ID**: 7.1 | **Date**: 2026-09-29 | **Jira**: LOCAL | **GitHub**: LOCAL
 **Wave**: 1
 **Requires**: []
-**Enables**: [1.2, 1.3]
+**Enables**: [7.2, 7.3]
 **Files Touched**:
   - aura/app/api/favorites/route.ts
   - aura/.env.example
@@ -38,7 +38,7 @@ Today, saving a piece of jewellery to look at later doesn't work — there's no 
 5. To remove one, the client calls `DELETE /api/favorites` with the item's id; the server removes it if present, or tells the client it wasn't found.
 
 ### [Guest]
-**Scenario / narrative**: As a guest browsing without an account, I never see a favorite option in the UI (that's Story 1.2), but even if I tried to call these endpoints directly (e.g., from the browser console), the server refuses every one of them the same way it already refuses guest access to `/favorites` today — no data is ever returned or changed.
+**Scenario / narrative**: As a guest browsing without an account, I never see a favorite option in the UI (that's Story 7.2), but even if I tried to call these endpoints directly (e.g., from the browser console), the server refuses every one of them the same way it already refuses guest access to `/favorites` today — no data is ever returned or changed.
 **Steps**:
 1. Guest's request to any of `GET`/`POST`/`DELETE /api/favorites` arrives with no valid session.
 2. The server checks for a signed-in user first, before touching any data, and finds none.
@@ -114,7 +114,7 @@ Implements `aura/app/api/favorites/route.ts` as a Next.js App Router Route Handl
 | Authenticated User | favorites:read-own | GET /api/favorites | own rows only | n/a | n/a (API-only story) |
 | Authenticated User | favorites:create-own | POST /api/favorites | own rows only | 409 on duplicate | n/a |
 | Authenticated User | favorites:delete-own | DELETE /api/favorites | own rows only | 404 if not found | n/a |
-| Guest | — | GET/POST/DELETE /api/favorites | no | 401 on every method | n/a (no UI in this story; Story 1.2 hides the trigger) |
+| Guest | — | GET/POST/DELETE /api/favorites | no | 401 on every method | n/a (no UI in this story; Story 7.2 hides the trigger) |
 
 - **Enforcement point(s)**: top of each exported handler in `aura/app/api/favorites/route.ts` — `const { data: { user } } = await supabase.auth.getUser(); if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });` — also independently backed by `proxy.ts`'s existing matcher and by RLS at the DB layer (three independent layers, per the target architecture's defense-in-depth decision).
 - **Denied-access contract**: `401 { error: "Unauthorized" }` JSON body; no UI in this story (pure API).
@@ -251,7 +251,7 @@ Implements `aura/app/api/favorites/route.ts` as a Next.js App Router Route Handl
 // This repo has no Next.js Route Handler test harness today (confirmed in
 // deep-dive) — per the Risks section, this story does not introduce one.
 // Manual verification (curl) is the primary test for this story; automated
-// coverage of the favorites flow is added in Story 1.2 via lib/favorites.ts's
+// coverage of the favorites flow is added in Story 7.2 via lib/favorites.ts's
 // unit tests (mocked fetch), which exercise this route's contract indirectly.
 ```
 
@@ -267,6 +267,6 @@ Manual:
 
 **Quality**: ESLint 0 errors, `tsc --noEmit` clean, manual verification above passes, no console errors.
 
-**OUT**: ❌ No UI in this story (toggle button is Story 1.2, page is Story 1.3). ❌ No repository/class abstraction over Supabase calls. ❌ No new logging library. ❌ No rate limiting (flagged as a separate open question in `docs/requirements.md`, not in scope here).
+**OUT**: ❌ No UI in this story (toggle button is Story 7.2, page is Story 1.3). ❌ No repository/class abstraction over Supabase calls. ❌ No new logging library. ❌ No rate limiting (flagged as a separate open question in `docs/requirements.md`, not in scope here).
 
 **Evidence**: curl output for all 8 manual test cases above, `tsc --noEmit` clean output, ESLint clean output.
