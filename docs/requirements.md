@@ -169,11 +169,13 @@ and verified against the current code in `docs/architecture/current/`, not a for
   - Relationship-scoped favorites (see Functional Requirements → Favorites above).
   - Rate limiting/abuse protection on auth routes — not addressed by the document or by any epic so far.
   - `allowOverBudget` parameter on `getRecommendations` — ported as an unused, harmless capability; not a bug, do not "clean it up" without confirming a new UI affordance is wanted.
-- **No `.env.example` in `aura/`** — `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  are only discoverable by reading `lib/supabase/*.ts` source. The Migration Document's own file
-  tree (§2) specifies `.env.local` with a third var, `SUPABASE_SERVICE_ROLE_KEY` (server-only) —
-  not currently referenced anywhere in `aura/`'s code; confirm whether it's needed yet (likely
-  only once `app/api/favorites` is built, if it needs elevated privileges beyond RLS).
+- **CORRECTED (2026-09-29, during Story 7.1 implementation)**: this document previously claimed
+  no `.env.example` existed in `aura/`. That was wrong — `aura/.env.local.example` already exists
+  and lists all 3 vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`). `SUPABASE_SERVICE_ROLE_KEY` is still not referenced by any code in
+  `aura/` as of Story 7.1 — the favorites API route uses the RLS-enforced anon-key client, not the
+  service role, so the elevated key remains unused. No action needed unless a future feature
+  requires bypassing RLS.
 - **Middleware file is named `proxy.ts`**, not `middleware.ts` — a documented, deliberate Next.js 16
   convention change (the doc assumed `middleware.ts`); do not "fix" this by renaming it back.
 
