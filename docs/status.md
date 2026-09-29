@@ -1,7 +1,7 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 19:21
-**Updated By**: ARCHITECT
+**Last Updated**: 2026-09-29 20:05
+**Updated By**: ANALYST_PM_BROWNFIELD
 **Overall Status**: 🟡 IN PROGRESS
 
 ---
@@ -21,8 +21,8 @@
 | Step | Status | Owner | Updated | Evidence | Recorded |
 |------|--------|-------|---------|----------|----------|
 | System Discovery | ✅ Done | AIRE_ARCHITECT | 2026-09-29 | `docs/architecture/current/00-system-overview.md` | 2026-09-29 19:21 |
-| Deep-Dive | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
-| Requirements | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
+| Deep-Dive | ✅ Done | AIRE_ARCHITECT | 2026-09-29 | `docs/architecture/current/01-recommendation-engine-deep-dive.md` | 2026-09-29 19:35 |
+| Requirements | ✅ Done | ANALYST_PM_BROWNFIELD | 2026-09-29 | `docs/requirements.md` (revised against recovered Migration Document) | 2026-09-29 20:05 |
 | Target Architecture | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Patterns | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
@@ -47,6 +47,32 @@
 - [x] Phase 3: Architecture mapping (legacy static MVP + Next.js rebuild, Mermaid diagram) ✅
 - [x] Phase 4: `docs/architecture/current/00-system-overview.md` written ✅
 - [x] Phase 5: Diagram preview extracted to `docs/architecture-diagrams/00-system-overview-diagrams.md` ✅
+
+### Deep-Dive — Recommendation Engine
+
+**Owner**: ARCHITECT
+**Status**: ✅ Done
+**Started**: 2026-09-29
+
+**Progress**:
+- [x] Phase 1: Module analysis — engine functions, legacy `app.js` counterpart, dependencies ✅
+- [x] Phase 2: Flow analysis — sequence diagram (get recommendations), state-transition via URL params ✅
+- [x] Phase 3: Data analysis — `JewelleryItem`/`RecommendationPrefs` models documented (no DB — static in-memory catalog) ✅
+- [x] Phase 4: Pattern extraction — dual-engine divergence, pure-function scoring, URL-driven state, regression-baseline testing ✅
+- [x] Phase 5: `docs/architecture/current/01-recommendation-engine-deep-dive.md` written ✅
+- [x] Phase 6: Diagram preview extracted to `docs/architecture-diagrams/01-recommendation-engine-deep-dive-diagrams.md` ✅
+
+### Requirements
+
+**Owner**: ANALYST_PM_BROWNFIELD
+**Status**: ✅ Done
+**Started**: 2026-09-29
+
+**Progress**:
+- [x] Step 0: Reference check — no `SPEC/references/` files, no Helix sync ✅
+- [x] Step 1: Source selection — no Jira project exists; reconstructed epics/stories from git history (6 epics + 1 fix commit) per user's explicit choice ✅
+- [x] Synthesized `docs/requirements.md` — project overview, roles matrix, functional requirements, success/failure criteria, technical constraints, scope (IN/OUT/IMPACT) ✅
+- [x] **Post-approval update**: user located and added the Aura Migration Document (PDF) to `SPEC/references/`; read via `aire read` (converted to `.md` alongside it) and requirements revised — resolves the dual-recommendation-engine question (Migration Doc §9 item 7: `aura/lib/recommendation-engine.ts` is the approved design, `app.js` is superseded legacy) and confirms `app/api/favorites` as a planned-but-unbuilt deliverable (§2, §8 Step 6), not an open decision ✅
 
 ---
 
@@ -89,14 +115,18 @@ _None yet._
 
 - [x] **System Discovery**: Done — 2026-09-29
   - Evidence: `docs/architecture/current/00-system-overview.md`, `docs/architecture-diagrams/00-system-overview-diagrams.md`
+- [x] **Deep-Dive (Recommendation Engine)**: Done — 2026-09-29
+  - Evidence: `docs/architecture/current/01-recommendation-engine-deep-dive.md`, `docs/architecture-diagrams/01-recommendation-engine-deep-dive-diagrams.md`
+- [x] **Requirements**: Done — 2026-09-29
+  - Evidence: `docs/requirements.md`
 
 ---
 
 ## Upcoming
 
-1. **aire-brownfield-deep-dive** — detailed per-module analysis (recommendation engine divergence, Supabase/auth flow, favorites gap)
-2. **aire-brownfield-requirements** — capture requirements from analysis (including resolving the missing "Migration Document" reference cited throughout `aura/`)
-3. **aire-brownfield-architecture** → **aire-brownfield-patterns** → **aire-brownfield-plan**
+1. **aire-brownfield-architecture** — design target state (resolve dual-engine decision, design the `app/api/favorites` route)
+2. **aire-brownfield-patterns** → **aire-build-cycles** → **aire-brownfield-plan**
+3. (Optional, lower priority) **aire-brownfield-deep-dive** for remaining modules — Supabase/auth flow, favorites gap — if needed before architecture
 
 ---
 
@@ -112,4 +142,5 @@ _None yet._
 
 | Agent | Last Action | Status | Updated | Recorded |
 |-------|------------|--------|---------|----------|
-| ARCHITECT | System overview + status.md created | Idle | 2026-09-29 | 2026-09-29 19:21 |
+| ARCHITECT | Recommendation-engine deep-dive complete | Idle | 2026-09-29 | 2026-09-29 19:35 |
+| ANALYST_PM_BROWNFIELD | Requirements revised against recovered Migration Document | Idle | 2026-09-29 | 2026-09-29 20:05 |
