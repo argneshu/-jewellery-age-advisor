@@ -1,6 +1,8 @@
 # Image credits
 
-**Status: placeholder images, not final.** Per an explicit product decision
+**Status: partly replaced.** 25 of 40 images are now real photos from Pexels (picked by the owner from candidate sheets, 2026-10-09; Pexels License allows free commercial use, no attribution required). The other 15 rows below still say picsum.photos — they are random placeholders and must be replaced. Several pieces are only approximate matches (e.g. 3, 12, 14, 21, 25, 30, 39) and some photos are reused across products (307039: 19 & 26; 20943477: 7 & 21; 13595298: 13 & 25).
+
+Original note on the placeholders: Per an explicit product decision
 during Epic 4 (real Unsplash/Pexels curation wasn't feasible in this
 session), all 40 images are deterministic placeholders from
 [picsum.photos](https://picsum.photos), seeded `aura-jewellery-{id}` per
@@ -15,41 +17,41 @@ changes).
 |---|---|---|
 | 1 | earrings-tiny-gold-stud-set.jpg | picsum.photos (seed aura-jewellery-1) |
 | 2 | bracelet-nameplate-charm-bracelet.jpg | picsum.photos (seed aura-jewellery-2) |
-| 3 | anklet-featherweight-anklet-pair.jpg | picsum.photos (seed aura-jewellery-3) |
+| 3 | anklet-featherweight-anklet-pair.jpg | Pexels photo 5676230 — https://www.pexels.com/photo/5676230/ (Pexels License) |
 | 4 | earrings-hypoallergenic-flower-studs.jpg | picsum.photos (seed aura-jewellery-4) |
 | 5 | necklace-little-star-pendant.jpg | picsum.photos (seed aura-jewellery-5) |
 | 6 | necklace-birthstone-thin-chain.jpg | picsum.photos (seed aura-jewellery-6) |
-| 7 | earrings-small-hoop-earrings.jpg | picsum.photos (seed aura-jewellery-7) |
-| 8 | necklace-layer-ready-daily-chain.jpg | picsum.photos (seed aura-jewellery-8) |
-| 9 | ring-trend-stack-rings-set-of-3.jpg | picsum.photos (seed aura-jewellery-9) |
+| 7 | earrings-small-hoop-earrings.jpg | Pexels photo 20943477 — https://www.pexels.com/photo/20943477/ (Pexels License) |
+| 8 | necklace-layer-ready-daily-chain.jpg | Pexels photo 12194265 — https://www.pexels.com/photo/12194265/ (Pexels License) |
+| 9 | ring-trend-stack-rings-set-of-3.jpg | Pexels photo 15968777 — https://www.pexels.com/photo/15968777/ (Pexels License) |
 | 10 | earrings-affordable-birthstone-studs.jpg | picsum.photos (seed aura-jewellery-10) |
-| 11 | ring-cocktail-statement-ring.jpg | picsum.photos (seed aura-jewellery-11) |
-| 12 | necklace-layered-gold-necklace-set.jpg | picsum.photos (seed aura-jewellery-12) |
-| 13 | earrings-versatile-drop-earrings.jpg | picsum.photos (seed aura-jewellery-13) |
-| 14 | bangle-work-to-evening-bangle.jpg | picsum.photos (seed aura-jewellery-14) |
-| 15 | necklace-graduation-cap-pendant.jpg | picsum.photos (seed aura-jewellery-15) |
-| 16 | necklace-polki-bridal-necklace-set.jpg | picsum.photos (seed aura-jewellery-16) |
+| 11 | ring-cocktail-statement-ring.jpg | Pexels photo 3266703 — https://www.pexels.com/photo/3266703/ (Pexels License) |
+| 12 | necklace-layered-gold-necklace-set.jpg | Pexels photo 34444125 — https://www.pexels.com/photo/34444125/ (Pexels License) |
+| 13 | earrings-versatile-drop-earrings.jpg | Pexels photo 13595298 — https://www.pexels.com/photo/13595298/ (Pexels License) |
+| 14 | bangle-work-to-evening-bangle.jpg | Pexels photo 374090 — https://www.pexels.com/photo/374090/ (Pexels License) |
+| 15 | necklace-graduation-cap-pendant.jpg | Pexels photo 6154083 — https://www.pexels.com/photo/6154083/ (Pexels License) |
+| 16 | necklace-polki-bridal-necklace-set.jpg | Pexels photo 20768279 — https://www.pexels.com/photo/20768279/ (Pexels License) |
 | 17 | necklace-kundan-heirloom-choker.jpg | picsum.photos (seed aura-jewellery-17) |
-| 18 | ring-solitaire-anniversary-ring.jpg | picsum.photos (seed aura-jewellery-18) |
-| 19 | bangle-gold-investment-bangles-pair.jpg | picsum.photos (seed aura-jewellery-19) |
-| 20 | necklace-elegant-premium-pearl-drop-set.jpg | picsum.photos (seed aura-jewellery-20) |
-| 21 | earrings-diamond-halo-earrings.jpg | picsum.photos (seed aura-jewellery-21) |
-| 22 | necklace-investment-gold-chain.jpg | picsum.photos (seed aura-jewellery-22) |
+| 18 | ring-solitaire-anniversary-ring.jpg | Pexels photo 15871523 — https://www.pexels.com/photo/15871523/ (Pexels License) |
+| 19 | bangle-gold-investment-bangles-pair.jpg | Pexels photo 307039 — https://www.pexels.com/photo/307039/ (Pexels License) |
+| 20 | necklace-elegant-premium-pearl-drop-set.jpg | Pexels photo 11790271 — https://www.pexels.com/photo/11790271/ (Pexels License) |
+| 21 | earrings-diamond-halo-earrings.jpg | Pexels photo 20943477 — https://www.pexels.com/photo/20943477/ (Pexels License) |
+| 22 | necklace-investment-gold-chain.jpg | Pexels photo 6467618 — https://www.pexels.com/photo/6467618/ (Pexels License) |
 | 23 | necklace-temple-jewellery-necklace-set.jpg | picsum.photos (seed aura-jewellery-23) |
-| 24 | necklace-classic-pearl-strand.jpg | picsum.photos (seed aura-jewellery-24) |
-| 25 | earrings-heritage-jhumka-earrings.jpg | picsum.photos (seed aura-jewellery-25) |
-| 26 | bangle-timeless-gold-bangle.jpg | picsum.photos (seed aura-jewellery-26) |
-| 27 | necklace-sentimental-locket-pendant.jpg | picsum.photos (seed aura-jewellery-27) |
-| 28 | earrings-soft-tone-pearl-studs.jpg | picsum.photos (seed aura-jewellery-28) |
-| 29 | necklace-simple-gold-chain.jpg | picsum.photos (seed aura-jewellery-29) |
-| 30 | earrings-low-maintenance-gold-studs.jpg | picsum.photos (seed aura-jewellery-30) |
+| 24 | necklace-classic-pearl-strand.jpg | Pexels photo 9421389 — https://www.pexels.com/photo/9421389/ (Pexels License) |
+| 25 | earrings-heritage-jhumka-earrings.jpg | Pexels photo 13595298 — https://www.pexels.com/photo/13595298/ (Pexels License) |
+| 26 | bangle-timeless-gold-bangle.jpg | Pexels photo 307039 — https://www.pexels.com/photo/307039/ (Pexels License) |
+| 27 | necklace-sentimental-locket-pendant.jpg | Pexels photo 10983782 — https://www.pexels.com/photo/10983782/ (Pexels License) |
+| 28 | earrings-soft-tone-pearl-studs.jpg | Pexels photo 2876035 — https://www.pexels.com/photo/2876035/ (Pexels License) |
+| 29 | necklace-simple-gold-chain.jpg | Pexels photo 8123210 — https://www.pexels.com/photo/8123210/ (Pexels License) |
+| 30 | earrings-low-maintenance-gold-studs.jpg | Pexels photo 34399036 — https://www.pexels.com/photo/34399036/ (Pexels License) |
 | 31 | bangle-comfort-fit-gold-bangle.jpg | picsum.photos (seed aura-jewellery-31) |
 | 32 | necklace-timeless-pearl-pendant.jpg | picsum.photos (seed aura-jewellery-32) |
-| 33 | ring-everyday-minimal-ring.jpg | picsum.photos (seed aura-jewellery-33) |
+| 33 | ring-everyday-minimal-ring.jpg | Pexels photo 16689780 — https://www.pexels.com/photo/16689780/ (Pexels License) |
 | 34 | earrings-festival-kundan-earrings.jpg | picsum.photos (seed aura-jewellery-34) |
 | 35 | necklace-modern-geometric-necklace.jpg | picsum.photos (seed aura-jewellery-35) |
 | 36 | earrings-statement-chandelier-earrings.jpg | picsum.photos (seed aura-jewellery-36) |
 | 37 | hair-jewellery-traditional-gold-maang-tikka.jpg | picsum.photos (seed aura-jewellery-37) |
 | 38 | earrings-everyday-rose-gold-studs.jpg | picsum.photos (seed aura-jewellery-38) |
-| 39 | ring-anniversary-eternity-band.jpg | picsum.photos (seed aura-jewellery-39) |
-| 40 | bracelet-graduation-gift-bracelet.jpg | picsum.photos (seed aura-jewellery-40) |
+| 39 | ring-anniversary-eternity-band.jpg | Pexels photo 230289 — https://www.pexels.com/photo/230289/ (Pexels License) |
+| 40 | bracelet-graduation-gift-bracelet.jpg | Pexels photo 12124662 — https://www.pexels.com/photo/12124662/ (Pexels License) |
