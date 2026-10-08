@@ -8,14 +8,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatINR } from "@/lib/format";
 import { whyText } from "@/lib/recommendation-engine";
 import { gradientForCategory } from "@/lib/gradients";
+import { hasRealPhoto } from "@/lib/product-images";
 import { useFavorite } from "@/lib/use-favorite";
 import type { JewelleryItem, RecommendationPrefs } from "@/types/jewellery";
 
-// The Epic 4 placeholder images (picsum.photos, see public/images/jewellery/
-// CREDITS.md) are random stock photos with no relation to jewellery — worse
-// than showing no photo at all. Flip this once real photos are curated;
-// onError below still covers a genuinely broken/missing file at that point.
-const SHOW_PLACEHOLDER_IMAGES = false;
+// Only items with a curated photo (lib/product-images.ts) show an image; the remaining Epic 4
+// placeholders (picsum.photos, see public/images/jewellery/CREDITS.md) are random stock photos and
+// stay on the category gradient. onError still covers a genuinely broken/missing file.
 
 export function JewelleryCard({
   item,
@@ -28,7 +27,7 @@ export function JewelleryCard({
   prefs?: RecommendationPrefs;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const showImage = SHOW_PLACEHOLDER_IMAGES && !imageFailed;
+  const showImage = hasRealPhoto(item.id) && !imageFailed;
 
   // Favorite state/logic lives in useFavorite (extracted from this component in Epic 10, Story 10.4).
   const { isFavorited, toggleFavorite } = useFavorite(item.id);

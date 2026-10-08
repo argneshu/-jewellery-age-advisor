@@ -4,25 +4,29 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Heart, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MAX_QTY } from "@/lib/cart";
 import { formatINR } from "@/lib/format";
 import { gradientForCategory } from "@/lib/gradients";
 import { useCart } from "@/context/CartContext";
+import { hasRealPhoto } from "@/lib/product-images";
 import { useFavorite } from "@/lib/use-favorite";
 import type { JewelleryItem } from "@/types/jewellery";
 
 // Epic 10, Story 10.5 (Helix 1.2). Deviations: favorite heart added (Helix AC, missing from its
 // snippet) via the shared useFavorite hook; prices use text-gold-deep (WCAG AA, UI/UX spec);
 // back falls back to "/" when there is no in-app history; "Maximum 10 per item" guard (D1).
-// Images are not shown on the card/detail while SHOW_PLACEHOLDER_IMAGES is false (Epic 6 decision):
-// the gradient swatch is the product visual, same as the results grid.
+// The photo is shown only for items with a curated image (lib/product-images.ts); other items keep
+// the gradient swatch, same as the results grid.
 
 export function ProductDetail({ item }: { item: JewelleryItem }) {
   const router = useRouter();
   const { items, addItem } = useCart();
   const { isFavorited, toggleFavorite } = useFavorite(item.id);
   const [added, setAdded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = hasRealPhoto(item.id) && !imageFailed;
 
   const inCart = items.find((i) => i.id === item.id)?.quantity ?? 0;
   const atMax = inCart >= MAX_QTY;
@@ -59,9 +63,20 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
 
       <div className="grid gap-10 md:grid-cols-2">
         <div
-          className="relative aspect-square w-full rounded-aura-xl"
-          style={{ background: gradientForCategory(item.category) }}
+          className="relative aspect-square w-full overflow-hidden rounded-aura-xl"
+          style={showImage ? undefined : { background: gradientForCategory(item.category) }}
         >
+          {showImage && (
+            <Image
+              src={item.imagePath}
+              alt={item.imageAlt}
+              fill
+              priority
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+              onError={() => setImageFailed(true)}
+            />
+          )}
           {/* 44x44px hit area around a 32px visual circle (UI/UX spec) */}
           <button
             type="button"
