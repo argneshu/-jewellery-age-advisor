@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
+import { ProductImage } from "@/components/ProductImage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/context/CartContext";
 import { validateUpiId, type PaymentMethod } from "@/lib/checkout";
 import { formatINR } from "@/lib/format";
-import { gradientForCategory } from "@/lib/gradients";
 import type { UserAddress } from "@/types/address";
 import { placeOrder } from "./actions";
 import { PaymentMethodSection } from "./PaymentMethodSection";
@@ -94,11 +94,7 @@ export function CheckoutClient({ address }: { address: UserAddress }) {
         <ul className="space-y-3">
           {items.map((item) => (
             <li key={item.id} className="flex items-center gap-3">
-              <div
-                className="h-10 w-10 shrink-0 rounded-lg"
-                style={{ background: gradientForCategory(item.category) }}
-                aria-hidden="true"
-              />
+              <ProductImage item={item} sizes="2.5rem" className="h-10 w-10 shrink-0 rounded-lg" />
               <p className="flex-1 text-sm text-ink">{item.name}</p>
               <p className="text-xs text-ink-soft">×{item.quantity}</p>
               <p className="text-sm font-semibold text-gold-deep">{formatINR(item.price * item.quantity)}</p>

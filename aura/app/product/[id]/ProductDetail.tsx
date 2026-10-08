@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Heart, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { ProductImage } from "@/components/ProductImage";
 import { Button } from "@/components/ui/button";
 import { MAX_QTY } from "@/lib/cart";
 import { formatINR } from "@/lib/format";
-import { gradientForCategory } from "@/lib/gradients";
 import { useCart } from "@/context/CartContext";
 import { useFavorite } from "@/lib/use-favorite";
 import type { JewelleryItem } from "@/types/jewellery";
@@ -15,8 +15,8 @@ import type { JewelleryItem } from "@/types/jewellery";
 // Epic 10, Story 10.5 (Helix 1.2). Deviations: favorite heart added (Helix AC, missing from its
 // snippet) via the shared useFavorite hook; prices use text-gold-deep (WCAG AA, UI/UX spec);
 // back falls back to "/" when there is no in-app history; "Maximum 10 per item" guard (D1).
-// Images are not shown on the card/detail while SHOW_PLACEHOLDER_IMAGES is false (Epic 6 decision):
-// the gradient swatch is the product visual, same as the results grid.
+// The photo is shown only for items with a curated image (lib/product-images.ts); other items keep
+// the gradient swatch, same as the results grid.
 
 export function ProductDetail({ item }: { item: JewelleryItem }) {
   const router = useRouter();
@@ -58,9 +58,11 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
       </button>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <div
-          className="relative aspect-square w-full rounded-aura-xl"
-          style={{ background: gradientForCategory(item.category) }}
+        <ProductImage
+          item={item}
+          preload
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="aspect-square w-full rounded-aura-xl"
         >
           {/* 44x44px hit area around a 32px visual circle (UI/UX spec) */}
           <button
@@ -76,7 +78,7 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
               />
             </span>
           </button>
-        </div>
+        </ProductImage>
 
         <div className="flex flex-col gap-4">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">
