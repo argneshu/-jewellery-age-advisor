@@ -5,17 +5,17 @@ import { JEWELLERY_ITEMS } from "@/data/jewellery";
 import { hasRealPhoto, REAL_PHOTO_IDS } from "@/lib/product-images";
 
 describe("hasRealPhoto", () => {
-  it("is true for items with a curated photo and false for the rest", () => {
+  it("is true for items with a curated photo and false for unknown ids", () => {
     expect(hasRealPhoto(16)).toBe(true);
-    expect(hasRealPhoto(1)).toBe(false);
-    expect(hasRealPhoto(37)).toBe(false);
+    expect(hasRealPhoto(1)).toBe(true);
+    expect(hasRealPhoto(40)).toBe(true);
+    expect(hasRealPhoto(0)).toBe(false);
+    expect(hasRealPhoto(41)).toBe(false);
     expect(hasRealPhoto(999)).toBe(false);
   });
 
-  it("lists exactly the 25 curated items", () => {
-    expect([...REAL_PHOTO_IDS].sort((a, b) => a - b)).toEqual([
-      3, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 33, 39, 40,
-    ]);
+  it("covers every catalog item", () => {
+    expect([...REAL_PHOTO_IDS].sort((a, b) => a - b)).toEqual(JEWELLERY_ITEMS.map((i) => i.id).sort((a, b) => a - b));
   });
 
   it("only lists catalog items whose image file exists and is credited to Pexels", () => {
