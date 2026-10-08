@@ -62,4 +62,4 @@
 **Out of Scope**:
 - Order history list, invoice/PDF, cancel.
 
-**Completion Evidence**: 249/249 tests; lib/checkout.ts 100% coverage; tsc/lint/build clean; guest curl 307. Review: `docs/stories-implemented/story-10.11-review.md`. Signed-in checks pending user.
+**Completion Evidence**: 249/249 tests; lib/checkout.ts 100% coverage; tsc/lint/build clean; guest curl 307. Review: `docs/stories-implemented/story-10.11-review.md`. Browser-driven manual checks passed (34/34) — see review doc.

@@ -1,6 +1,6 @@
 # Story 10.10 — Secure Checkout Page — Review
 
-**Date**: 2026-10-08 | **Helix**: Story 4.2 (doc 5881) | **Status**: 🟡 Implemented — automated + guest curl checks passed; **end-to-end order checks pending the user** (below)
+**Date**: 2026-10-08 | **Helix**: Story 4.2 (doc 5881) | **Status**: ✅ Done — automated checks + browser-driven manual checks passed (see 'Manual-check evidence')
 
 ## What Was Implemented
 - `aura/lib/checkout.ts` (+): `validateUpiId` (same regex as `place_order`), `validatePaymentMethod`, `priceOrder` (prices/names from catalog only), `validatePlaceOrderInput`, `mapPlaceOrderError`, `MAX_ORDER_LINES`.
@@ -34,7 +34,7 @@ TODO/FIXME/console.log in app/checkout, lib/checkout.ts → 0 ; earlier-epic fil
 **Negative-space**: no real payment, emails, inventory, DB price check (R1 accepted).
 **Contract**: client sends `{paymentMethod, upiId?, items:[{id,quantity}]}` ↔ `validatePlaceOrderInput` ↔ `PricedLine` (`jewellery_item_id,name,price,quantity`) ↔ `place_order(p_items)` field names in migration 0004.
 
-## Pending manual checks (dev account, ~5 minutes; `npm run dev`)
+## Manual check list (all passed — see evidence below) (dev account, ~5 minutes; `npm run dev`)
 1. Add 2 items to the cart → Proceed to Checkout → three sections show; totals match the cart.
 2. COD: select Cash on Delivery → Place Order. Expect redirect to `/order-confirmation/<id>` (404 until Story 10.11 — expected) and the cart badge now empty.
 3. SQL: `select id, payment_method, upi_id, total from public.orders order by created_at desc limit 1;` and `select * from public.order_items where order_id = '<id>';` → 1 order, correct item count, `address_snapshot` present.
@@ -45,6 +45,10 @@ TODO/FIXME/console.log in app/checkout, lib/checkout.ts → 0 ; earlier-epic fil
 
 ## Fix during manual testing
 User found Place Order enabled for UPI id `bad`. Cause: `canPlaceOrder` only checked the field was non-empty. Fixed: it now uses `validateUpiId` (same rule as server and `place_order`); inline error shows after blur. Re-run: 239/239 tests, tsc/lint/build clean.
+
+## Manual-check evidence (2026-10-08) — automated browser run
+Run with Playwright driving real Google Chrome (headless) against the local dev server (port 3000) and the dev Supabase project, using two throwaway users created and **deleted** by the script (cascade removes their rows). Result: **34/34 checks passed** (two consecutive clean runs). Covered: 10.7 cart clicks + guest/signed-in Proceed + keyboard focus ring; 10.8 add form + save; 10.9 routing matrix; 10.10 three sections, totals, UPI `bad` disabled / `me@okaxis` enabled, COD double-click → exactly 1 order (total = catalog math, 2 items, address snapshot), tamper (forged price/name in `aura_cart` → catalog values shown, stored total 185000, `upi_id` stored), empty cart → `/cart`; 10.11 confirmation content, `#SHORTID`, heading focus, cart badge gone, `/cart` empty, UPI line, no overflow at 375px, junk id / unknown UUID / other user's order → 404, guest → login.
+Limits: the tamper test altered `localStorage` (not a hand-forged Server Action request — that is covered by the `priceOrder` unit tests); the focus-ring check is a computed-style heuristic, not a visual review.
 
 ## Next Steps
 After checks → mark 10.10 ✅ → **10.11 (Order Confirmation Page)**.
