@@ -134,6 +134,7 @@ _None yet — `aire-build-cycles` not run._
 | NO-CYCLE | 10.9 | Checkout Route Guard (signed-in matrix verified by user) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
 | NO-CYCLE | 10.10 | Secure Checkout Page (browser checks passed) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
 | NO-CYCLE | 10.11 | Order Confirmation Page (browser checks passed) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.7a | Show product photos on cart & checkout (enhancement-1; 12/12 browser checks, `docs/stories-implemented/story-10.7a-review.md`) | 2026-10-09 | 2026-10-09 | 2026-10-09 |
 
 **Note**: Story 7.3's spec was pulled from Helix (solution document 4936) rather than a local
 story file, per user direction — reviewed in `docs/stories-implemented/story-7.3-review.md`.

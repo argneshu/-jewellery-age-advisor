@@ -4,13 +4,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Heart, ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
+import { ProductImage } from "@/components/ProductImage";
 import { Button } from "@/components/ui/button";
 import { MAX_QTY } from "@/lib/cart";
 import { formatINR } from "@/lib/format";
-import { gradientForCategory } from "@/lib/gradients";
 import { useCart } from "@/context/CartContext";
-import { hasRealPhoto } from "@/lib/product-images";
 import { useFavorite } from "@/lib/use-favorite";
 import type { JewelleryItem } from "@/types/jewellery";
 
@@ -25,8 +23,6 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
   const { items, addItem } = useCart();
   const { isFavorited, toggleFavorite } = useFavorite(item.id);
   const [added, setAdded] = useState(false);
-  const [imageFailed, setImageFailed] = useState(false);
-  const showImage = hasRealPhoto(item.id) && !imageFailed;
 
   const inCart = items.find((i) => i.id === item.id)?.quantity ?? 0;
   const atMax = inCart >= MAX_QTY;
@@ -62,21 +58,12 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
       </button>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <div
-          className="relative aspect-square w-full overflow-hidden rounded-aura-xl"
-          style={showImage ? undefined : { background: gradientForCategory(item.category) }}
+        <ProductImage
+          item={item}
+          preload
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="aspect-square w-full rounded-aura-xl"
         >
-          {showImage && (
-            <Image
-              src={item.imagePath}
-              alt={item.imageAlt}
-              fill
-              priority
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
-              onError={() => setImageFailed(true)}
-            />
-          )}
           {/* 44x44px hit area around a 32px visual circle (UI/UX spec) */}
           <button
             type="button"
@@ -91,7 +78,7 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
               />
             </span>
           </button>
-        </div>
+        </ProductImage>
 
         <div className="flex flex-col gap-4">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">

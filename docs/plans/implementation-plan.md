@@ -224,6 +224,8 @@ Full graph: `docs/plans/dependency-graph.yml`. Per-story files: `docs/plans/stor
 **File**: `docs/plans/stories/epic-10-story-10.10-Secure-Checkout-Page.md` — checkout UI, server pricing/validation, `place_order`.
 ### Story 10.11: Order Confirmation Page — Helix 4.3
 **File**: `docs/plans/stories/epic-10-story-10.11-Order-Confirmation-Page.md` — confirmation page + final smoke test.
+### Story 10.7a: Show product photos on cart & checkout — Enhancement 1 (sub-story of 10.7)
+**File**: `docs/plans/stories/enhancement-epic-10-story-10.7a-show-product-photos-in-cart-and-checkout.md` — shared `ProductImage` component; photos in cart rows and checkout order summary. Report: `docs/enhancements/enhancement-1.md`.
 
 ## Quality Gates
 **Per Story**: patterns followed (§E10), TDD for pure logic, tests pass (existing + new), ESLint 0 errors, `tsc --noEmit`, `next build`, AC met, review doc in `docs/stories-implemented/story-10.N-review.md` with pasted output, `docs/status.md` updated.

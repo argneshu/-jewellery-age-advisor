@@ -1,13 +1,13 @@
 "use client";
 
 import { Minus, Plus, X } from "lucide-react";
+import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/context/CartContext";
 import { MAX_QTY, type CartItem } from "@/lib/cart";
 import { formatINR } from "@/lib/format";
-import { gradientForCategory } from "@/lib/gradients";
 
 // Epic 10, Story 10.7 (Helix 2.3). Layout per UI/UX spec: one row from 640px up; below 640px a
-// two-line card stack (swatch + name + remove / stepper + line total) so nothing overflows at
+// two-line card stack (photo + name + remove / stepper + line total) so nothing overflows at
 // 375px. Tap targets are 44x44px around smaller visuals; every control is named per item.
 // Prices use text-gold-deep (WCAG AA).
 
@@ -17,10 +17,10 @@ export function CartItemRow({ item }: { item: CartItem }) {
 
   return (
     <li className="grid grid-cols-[4rem_1fr_auto] items-center gap-x-4 gap-y-3 rounded-aura-xl border border-border-soft bg-ivory p-4 shadow-soft sm:grid-cols-[4rem_1fr_auto_6rem_auto]">
-      <div
+      <ProductImage
+        item={item}
+        sizes="4rem"
         className="col-start-1 row-start-1 h-16 w-16 shrink-0 rounded-lg sm:col-auto sm:row-auto"
-        style={{ background: gradientForCategory(item.category) }}
-        aria-hidden="true"
       />
 
       <div className="col-start-2 row-start-1 min-w-0 sm:col-auto sm:row-auto">

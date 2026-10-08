@@ -1,20 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { ProductImage } from "@/components/ProductImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatINR } from "@/lib/format";
 import { whyText } from "@/lib/recommendation-engine";
-import { gradientForCategory } from "@/lib/gradients";
-import { hasRealPhoto } from "@/lib/product-images";
 import { useFavorite } from "@/lib/use-favorite";
 import type { JewelleryItem, RecommendationPrefs } from "@/types/jewellery";
-
-// Only items with a curated photo (lib/product-images.ts) show an image; the remaining Epic 4
-// placeholders (picsum.photos, see public/images/jewellery/CREDITS.md) are random stock photos and
-// stay on the category gradient. onError still covers a genuinely broken/missing file.
 
 export function JewelleryCard({
   item,
@@ -26,9 +19,6 @@ export function JewelleryCard({
   // from, since a favorite can outlive the search that produced it.
   prefs?: RecommendationPrefs;
 }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const showImage = hasRealPhoto(item.id) && !imageFailed;
-
   // Favorite state/logic lives in useFavorite (extracted from this component in Epic 10, Story 10.4).
   const { isFavorited, toggleFavorite } = useFavorite(item.id);
 
@@ -40,23 +30,7 @@ export function JewelleryCard({
       className="group block rounded-aura-xl outline-none focus-visible:ring-2 focus-visible:ring-gold-deep focus-visible:ring-offset-2"
     >
       <Card className="overflow-hidden rounded-aura-xl border-border-soft bg-ivory shadow-soft transition-shadow group-hover:shadow-md">
-        <div
-          className="relative aspect-square w-full"
-          style={
-            !showImage
-              ? { background: gradientForCategory(item.category) }
-              : undefined
-          }
-        >
-          {showImage && (
-            <Image
-              src={item.imagePath}
-              alt={item.imageAlt}
-              fill
-              className="object-cover"
-              onError={() => setImageFailed(true)}
-            />
-          )}
+        <ProductImage item={item} className="aspect-square w-full">
           {/* 44x44px hit area (UI/UX spec) around the unchanged 32px visual circle. */}
           <button
             type="button"
@@ -75,7 +49,7 @@ export function JewelleryCard({
               />
             </span>
           </button>
-        </div>
+        </ProductImage>
         <CardContent className="space-y-1 p-5">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">
             {item.category}

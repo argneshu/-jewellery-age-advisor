@@ -235,6 +235,22 @@ stories:
       - aura/lib/checkout.ts
       - aura/lib/checkout.test.ts
 
+  - id: "10.7a"
+    title: Show product photos on cart & checkout (enhancement-1, sub-story of 10.7)
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 9
+    requires: ["10.7", "10.10"]
+    enables: []
+    files_touched:
+      - aura/components/ProductImage.tsx
+      - aura/components/cart/CartItemRow.tsx
+      - aura/app/checkout/CheckoutClient.tsx
+      - aura/components/recommendations/JewelleryCard.tsx
+      - aura/app/product/[id]/ProductDetail.tsx
+
 
 waves:
   - wave: 1
@@ -285,3 +301,9 @@ waves:
     assignments:
       - dev: 1
         stories: ["10.11"]
+
+  - wave: 9
+    stories: ["10.7a"]
+    assignments:
+      - dev: 1
+        stories: ["10.7a"]
