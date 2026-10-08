@@ -366,3 +366,236 @@ registration, with no separate index to update).
 - [ ] No repository/class abstraction introduced for Supabase access
 - [ ] No logging library introduced
 - [ ] Code review checked against this document
+
+---
+---
+
+# Epic 10 — Aura Shopping Flow — Patterns & Standards
+
+**Date**: 2026-10-08
+**Author**: ARCHITECT
+**Status**: Approved (user, 2026-10-08) — coverage tool approved and installed (E10.0 #10)
+**Version**: 2.0 (Epic 10 section; the Favorites section above is unchanged and remains approved)
+**Based On**: `docs/requirements.md` (Epic 10, approved), `docs/architecture/design/02-target-architecture-brownfield.md` (Epic 10, approved), `docs/architecture/current/*`, and the `aura/` source read 2026-10-08.
+
+> **Decision process.** The user delegated pattern choices to the architect ("whatever you think is best").
+> Each category below shows `[C]` Current kept or `[N]` New adoption with the reason, instead of a
+> per-category Q&A. Anything that needs the user's explicit OK is marked **⚠ NEEDS APPROVAL**.
+
+## E10.0 Pattern Adoption Summary
+
+| # | Category | Choice | Migration effort |
+|---|----------|--------|------------------|
+| 1 | Error handling | **[C] Current — kept**, extended with a typed result for Server Actions | None |
+| 2 | Logging | **[C] Current — kept** (no logger); one narrow `console.error(code)` rule for Server Actions | None |
+| 3 | Database access | **[C] Current — kept** (direct Supabase client); **[N]** `.maybeSingle()` for optional rows and `rpc()` for multi-table writes | None (new code only) |
+| 4 | API / action contract | **[N] New adoption** — Server Actions return `ActionResult`; first Server Actions in the repo | None (nothing to migrate) |
+| 5 | Configuration | **[C] Current — kept** — no new env vars; `aura/.env.local.example` unchanged | None |
+| 6 | Naming | **[C] Current — kept**: kebab-case non-component files, PascalCase components. *Supersedes* the architecture doc's file name `lib/useFavorite.ts` → **`lib/use-favorite.ts`** (export `useFavorite`) | None |
+| 7 | Code organisation | **[C] Current — kept**; adds top-level `context/` and `components/cart/` | None |
+| 8 | UI components / shared library | **[C] Current — kept** — reuse existing `components/ui/*`; no new generic primitives | None |
+| 9 | Testing | **[C] Current — kept** (Vitest, node, co-located) | None |
+| 10 | Coverage measurement | **[N] APPROVED 2026-10-08 and installed** — dev-only `@vitest/coverage-v8` (matching `vitest@^4.1.11`) | Low: 1 devDependency + 1 script |
+
+**⚠ Coverage tooling.** The requirements demand ≥85% coverage with pasted evidence. `package.json` has no coverage
+provider, and earlier epics asserted coverage by inspection. Producing real numbers needs
+`@vitest/coverage-v8` (devDependency, tooling only, no runtime impact) and an `npm run test:coverage` script. The
+requirements forbid new dependencies without approval, so this is asked here. *If declined*: coverage is reported
+by test-to-branch inspection as in Epics 7–8 and flagged as unmeasured in QA.
+
+## E10.1 Project Structure (additions)
+
+```
+aura/
+├─ app/
+│  ├─ product/[id]/{page.tsx, ProductDetail.tsx}            🆕
+│  ├─ cart/page.tsx                                          🆕
+│  ├─ checkout/{page.tsx, CheckoutClient.tsx, actions.ts}    🆕
+│  ├─ checkout/address/{page.tsx, AddressForm.tsx, actions.ts} 🆕
+│  ├─ order-confirmation/[id]/page.tsx                       🆕
+│  └─ layout.tsx                                             🟡
+├─ components/
+│  ├─ cart/{CartIconLink,CartItemRow,CartSummary}.tsx        🆕
+│  ├─ auth/AuthHeader.tsx                                    🟡
+│  └─ recommendations/JewelleryCard.tsx                      🟡
+├─ context/CartContext.tsx                                   🆕 (new top-level dir)
+├─ lib/
+│  ├─ cart.ts, cart.test.ts                                  🆕 pure
+│  ├─ checkout.ts, checkout.test.ts                          🆕 pure
+│  ├─ use-favorite.ts                                        🆕 hook (React)
+│  └─ supabase/{route-rules.ts, route-rules.test.ts}         🆕 pure; middleware.ts 🟡
+├─ types/address.ts                                          🆕
+└─ supabase/migrations/{0002_user_addresses,0003_orders,0004_place_order_fn}.sql + *_rollback.sql 🆕
+```
+Rules: route-segment files keep Next names (`page.tsx`, `actions.ts`, …); one concern per file; no file over ~200 lines
+(CheckoutClient is the likeliest to approach it — split a `PaymentMethodSection` out rather than exceed it); imports ordered
+external → `@/…` → relative; functions not classes; ESLint + `strict` TypeScript, no new tooling.
+
+## E10.2 Error Handling — [C] Current kept, extended
+
+Inline `Alert variant="destructive"`; no custom Error classes; no error boundaries added. For Server Actions, expected
+failures are **returned**, never thrown, and never carry raw database text.
+
+```typescript
+// lib/checkout.ts (pure) — shared result shape
+export type ActionResult<T extends object = object> =
+  | ({ ok: true } & T)
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+```
+**DO**
+```typescript
+const parsed = validateAddressInput(formData);
+if (!parsed.ok) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: parsed.fieldErrors };
+const { error } = await supabase.from("user_addresses").upsert(row, { onConflict: "user_id" });
+if (error) { console.error("[saveAddress]", error.code); return { ok: false, error: "We could not save your address. Please try again." }; }
+redirect("/checkout"); // outside any try/catch
+```
+**DON'T**
+```typescript
+try { await saveAddress(fd); } catch (e) { setError((e as Error).message); } // ❌ swallows redirect(); leaks DB text
+return { ok: false, error: error.message };                                  // ❌ raw Supabase message to the UI
+```
+
+## E10.3 Logging — [C] Current kept
+
+No logger, no new library. Server Actions may call `console.error("[actionName]", code)` with the **error code only**.
+Never log addresses, phone numbers, UPI ids, order bodies, cart contents, tokens, or emails.
+
+## E10.4 Database Access — [C] Current kept; two small additions
+
+Direct per-request client from `lib/supabase/server.ts`; RLS is the enforcement point; **never** the service-role key;
+**never** `SECURITY DEFINER`.
+- Optional single row → `.maybeSingle()` (not `.single()`), then distinguish `error` (real failure → throw to Next's error
+  page) from `data === null` (legitimately absent). *[N]* — Epic 7's route handlers keep `.single()`/their current form.
+- A write touching more than one table → one Postgres function called with `supabase.rpc()` (single transaction), never two
+  sequential client inserts.
+- Parameters are always bound (supabase-js / `rpc` args); no string-built SQL.
+
+**Migration file rules**: plain SQL in `aura/supabase/migrations/NNNN_name.sql`, header comment like `0001`
+(story, spec, how to run); paired `NNNN_name_rollback.sql` that drops only what that file created; numbering strictly
+sequential; additive only; never edit a migration after it has been applied anywhere — add a new number. Postgres has no
+`create policy if not exists`: a policy migration must be applied once per environment, and its applied state recorded in
+`docs/status.md`. Function files: `set search_path = public`, explicit `revoke … from public, anon` + `grant … to authenticated`.
+
+**DO**
+```typescript
+const { data, error } = await supabase.rpc("place_order", { p_payment_method, p_upi_id, p_items });
+```
+**DON'T**
+```typescript
+await supabase.from("orders").insert(...);        // ❌ then a second call…
+await supabase.from("order_items").insert(...);   // ❌ …can leave an order with no items
+```
+
+## E10.5 Action / API Contract — [N] New adoption
+
+Baseline for all future Server Actions (the Favorites route-handler contract in §6 above stays for `app/api/*`):
+1. `"use server"` file named `actions.ts` next to the route that uses it.
+2. First lines: `getUser()`; no user → `{ ok:false, error:"Please sign in again." }`.
+3. Treat every argument as `unknown`; validate with the pure validators in `lib/checkout.ts` before any I/O.
+4. Return `ActionResult`; success that should navigate either `redirect()` (form actions) or returns data the client uses
+   with `router.push()` (event-handler actions such as `placeOrder`).
+5. Prices, names and totals are **never** read from the client — only ids and quantities (D1).
+
+**DO**
+```typescript
+export async function placeOrder(input: unknown): Promise<ActionResult<{ orderId: string }>> {
+  const { data: { user } } = await (await createClient()).auth.getUser();
+  if (!user) return { ok: false, error: "Please sign in again." };
+  const priced = priceOrder(input, JEWELLERY_ITEMS);   // validates + prices from the catalog
+  if (!priced.ok) return { ok: false, error: priced.error };
+  // …rpc('place_order', …) → map errors to safe messages → { ok: true, orderId }
+}
+```
+**DON'T**
+```typescript
+const items: CartItem[] = JSON.parse(formData.get("items") as string);          // ❌ trusts client JSON
+const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);           // ❌ trusts client prices
+```
+
+## E10.6 Configuration — [C] Current kept
+No new variables. `aura/.env.local.example` is unchanged (it already lists all three vars; `SUPABASE_SERVICE_ROLE_KEY`
+stays unused). No config library.
+
+## E10.7 Naming — [C] Current kept
+Components/context files PascalCase (`CartContext.tsx`, `CartIconLink.tsx`); non-component modules kebab-case
+(`cart.ts`, `checkout.ts`, `use-favorite.ts`, `route-rules.ts`); types PascalCase; constants `UPPER_SNAKE` (`MAX_QTY`);
+localStorage key `aura_cart` (Helix); DB columns snake_case with camelCase mapping at the boundary (as `FavoriteRecord`).
+
+## E10.8 State & Client Patterns (Epic 10 specifics)
+- **Cart**: reducer lives in pure `lib/cart.ts`; the provider only wires effects. Persistence waits for `isHydrated`;
+  stored data is parsed defensively and rebuilt from the catalog (`parseStoredCart`). Pages that depend on cart contents wait
+  for `isHydrated` before showing empty states or redirecting.
+- **Hooks**: React hooks that wrap I/O live in `lib/use-*.ts` with `"use client"`; business rules inside them move to pure
+  helpers where possible so they can be tested without jsdom.
+- **Forms**: `useActionState(saveAddress, null)` directly — no wrapping try/catch. Event-handler actions use a `useRef`
+  in-flight lock plus `disabled={isPending}`.
+- **Links as buttons**: `Button render={<Link href=… />}` (existing pattern).
+- **Money**: integers (rupees), always formatted with `formatINR`; never floats.
+
+## E10.9 Testing Patterns — [C] Current kept
+- Vitest, node environment, `describe/it/expect`, Arrange-Act-Assert, co-located `*.test.ts` next to the source.
+- Everything with branching logic is pure and tested: `lib/cart.ts` (reducer: add/increment/cap/remove/clamp/unknown id/clear;
+  `parseStoredCart`: null, bad JSON, non-array, unknown ids, duplicates, bad quantity, tampered price → rebuilt from catalog),
+  `lib/checkout.ts` (address fields, phone/pincode boundaries, UPI valid/invalid, payment methods, `priceOrder` rejects
+  empty / unknown id / quantity 0, 11, 1.5, duplicate ids, > 40 lines, non-object input; total equals catalog math despite
+  forged prices; `isUuid`; `shortOrderId`), `lib/supabase/route-rules.ts` (all existing + 2 new protected prefixes, `/checkout/address`,
+  `/cart` and `/product/1` public, look-alike prefixes such as `/checkout-foo` NOT protected).
+- Mocking: `vi.stubGlobal`/`vi.fn` only where needed (e.g. `localStorage` stub for context helpers); no module-mock frameworks.
+- **Regression gate**: existing 16 tests unchanged and green after every story.
+- **Database/RLS verification** (not Vitest): a documented SQL script per migration run on a non-production project —
+  two-user RLS, CHECK rejections, `place_order` success + forced-failure rollback, anon denied; output pasted into the story review doc.
+- **UI/route verification**: no component harness (D5). Per story: `npm run build`, `lint`, `tsc --noEmit`, `curl -I` status/redirect
+  checks for guards, and a manual/QA checklist taken from the story's Definition of Done.
+- **Coverage**: ≥85% on all new pure `lib/` modules (measured if E10.0 #10 is approved, otherwise by inspection and flagged).
+
+## E10.10 Documentation Standards
+Comments explain *why* and mark every deviation from a Helix story with a short breadcrumb (e.g. `// Deviates from Helix 4.2: …`),
+as in Epics 1–8. No JSDoc convention. Each story ends with `docs/stories-implemented/story-10.N-review.md` (AC checklist, test
+output, SQL verification output, deviations). The Helix snapshot (`docs/helix/`) is read-only; changes needed in Helix are reported to the user, not written.
+
+## E10.11 File/Module Boundary Map (MANDATORY)
+
+| Concern | Owning file(s) | Story | New / Existing |
+|---|---|---|---|
+| Address schema + RLS | `aura/supabase/migrations/0002_user_addresses*.sql`, `aura/types/address.ts` | 10.1 | 🆕 |
+| Orders schema + RLS | `aura/supabase/migrations/0003_orders*.sql` | 10.2 | 🆕 |
+| `place_order` function | `aura/supabase/migrations/0004_place_order_fn*.sql` | 10.2 | 🆕 |
+| Cart logic (pure) | `aura/lib/cart.ts`, `aura/lib/cart.test.ts` | 10.3 | 🆕 |
+| Cart provider | `aura/context/CartContext.tsx` | 10.3 | 🆕 |
+| Provider mount | `aura/app/layout.tsx` | 10.3 | 🟡 **shared** |
+| Favorite hook extraction | `aura/lib/use-favorite.ts` | 10.4 | 🆕 |
+| Clickable card | `aura/components/recommendations/JewelleryCard.tsx` | 10.4 (also touched by hook extraction) | 🟡 **shared within 10.4/10.5** |
+| Product detail | `aura/app/product/[id]/*` | 10.5 | 🆕 |
+| Cart icon | `aura/components/cart/CartIconLink.tsx`, `aura/components/auth/AuthHeader.tsx` | 10.6 | 🆕 / 🟡 |
+| Cart page | `aura/app/cart/page.tsx`, `aura/components/cart/CartItemRow.tsx`, `CartSummary.tsx` | 10.7 | 🆕 |
+| Address validation (pure) | `aura/lib/checkout.ts` (address part), `aura/lib/checkout.test.ts` | 10.8 | 🆕 |
+| Address page/form/action | `aura/app/checkout/address/*` | 10.8 | 🆕 |
+| Route rules + protection | `aura/lib/supabase/route-rules.ts`(+test), `aura/lib/supabase/middleware.ts` | 10.9 | 🆕 / 🟡 |
+| Checkout guard page | `aura/app/checkout/page.tsx` | 10.9 → extended 10.10 | 🆕 **shared (10.9 → 10.10)** |
+| Order pricing/validation (pure) | `aura/lib/checkout.ts` (order part) | 10.10 | 🟡 **shared with 10.8** |
+| Checkout UI + action | `aura/app/checkout/CheckoutClient.tsx`, `aura/app/checkout/actions.ts` | 10.10 | 🆕 |
+| Confirmation page | `aura/app/order-confirmation/[id]/page.tsx` | 10.11 | 🆕 |
+| Coverage tooling (if approved) | `aura/package.json`, `aura/package-lock.json` | any (do once, first) | 🟡 **shared** |
+
+**Shared files (`shared_files` for the dependency graph)**: `aura/app/layout.tsx` (10.3 only), `aura/lib/checkout.ts`
+(10.8 creates the address half; 10.10 adds the order half — same file, sequential stories), `aura/app/checkout/page.tsx`
+(10.9 creates; 10.10 extends), `aura/components/recommendations/JewelleryCard.tsx` (10.4 only, but also IMPACTS 10.5 via
+`use-favorite`), `aura/package.json`/lockfile (coverage tooling, one-time).
+**Unavoidable ordering constraints**: 0002 → 0003 → 0004; 10.3 before anything that imports `useCart`; 10.8 before 10.10
+for `lib/checkout.ts`; 10.9 before 10.10 for the checkout page. Stories that can run in parallel without touching the same file:
+{10.1, 10.2, 10.3}, then {10.4→10.5, 10.6, 10.7}.
+**Never touched**: `lib/recommendation-engine.ts`, `lib/favorites.ts`, `app/api/favorites/*`, `data/jewellery.ts`, `0001_favorites.sql`.
+
+## E10.12 Quality Checklist (Epic 10)
+
+- [ ] No new runtime dependency; coverage devDependency only if approved
+- [ ] Every Server Action: `getUser()` first → validate `unknown` input → typed `ActionResult` → no raw DB text → `redirect()` outside try/catch
+- [ ] No client-supplied price/name/total is ever used server-side
+- [ ] Multi-table writes only through `rpc()`; `SECURITY INVOKER`; grants revoked from `public`/`anon`
+- [ ] Each migration has a rollback file and was verified on a non-production database first; applied state recorded
+- [ ] Cart persistence waits for `isHydrated`; stored cart rebuilt from catalog; all `localStorage` access in try/catch
+- [ ] Existing 16 tests still pass; new pure modules ≥85% (measured or flagged)
+- [ ] `JewelleryCard` heart: no navigation on click or keyboard; Epic 7 behaviour unchanged
+- [ ] No PII/UPI/addresses in logs; no TODO comments; deviations from Helix carry breadcrumb comments
+- [ ] File boundaries respected (§E10.11); `build`, `lint`, `tsc --noEmit` clean

@@ -126,3 +126,134 @@ than manufacturing a 4th story with no source spec.
 
 **Tracking**: GitHub Projects
 **Repo**: argneshu/-jewellery-age-advisor
+
+---
+---
+
+# Epic 10 — Aura Shopping Flow — Implementation Plan
+
+**Project**: Jewellery Age Advisor (Aura) — Shopping Flow | **Version**: 1.0 | **Created**: 2026-10-08
+**Author**: PRODUCT_OWNER | **Status**: AWAITING APPROVAL
+**Source specs**: Helix solution 1080 (epic doc 5877 + stories 5878–5888; local snapshot `docs/helix/`), `docs/requirements.md` (Epic 10, approved), `docs/architecture/design/02-…` §10 (approved), `docs/architecture/design/03-…` §E10 (approved), `docs/data/*` (approved).
+**Numbering**: Epics 1–9 exist (7 favorites, 8 verification, 9 deployment). This plan continues as **Epic 10** with local stories **10.1–10.11**; Helix story numbers are kept in each story header (`Helix: Story X.Y`). Tracker: **local only** (`Jira: LOCAL`, `GitHub: LOCAL`) with a Helix reference per story; nothing is written back to Helix.
+
+## Prerequisite P0 (user action, before Story 10.1) — separate development database
+Only one Supabase project exists and it is the production one. **Do not run migrations or tests against it.** Create a second (free) Supabase project, e.g. `aura-dev`, then: set `aura/.env.local` to the dev project's URL + anon key (never commit it); copy Auth settings (email confirmation required, Site URL, redirect URL `http://localhost:3000/auth/callback`); apply `0001_favorites.sql` there; create two test users. Production keeps its own keys (Vercel env vars, Epic 9). Production gets migrations 0002–0004 only at deploy time with explicit go-ahead + backup.
+
+## Dependency Graph
+
+```mermaid
+graph TD
+  classDef w4 fill:#D4EDDA,stroke:#28A745
+  classDef w5 fill:#FFF3CD,stroke:#FFC107
+  classDef w6 fill:#FDE2C0,stroke:#FD7E14
+  classDef w7 fill:#F8D7DA,stroke:#DC3545
+  classDef w8 fill:#E2D9F3,stroke:#6F42C1
+  S1["10.1 Address DB"]:::w4
+  S2["10.2 Orders DB + place_order"]:::w4
+  S3["10.3 CartContext"]:::w4
+  S4["10.4 Clickable Card + useFavorite"]:::w4
+  S5["10.5 Product Detail"]:::w5
+  S6["10.6 Cart Icon"]:::w5
+  S7["10.7 Cart Page"]:::w5
+  S8["10.8 Address Form + Action"]:::w5
+  S9["10.9 Route Guard"]:::w6
+  S10["10.10 Secure Checkout"]:::w7
+  S11["10.11 Order Confirmation"]:::w8
+  S3 --> S5
+  S4 --> S5
+  S3 --> S6
+  S3 --> S7
+  S1 --> S8
+  S3 --> S9
+  S8 --> S9
+  S9 --> S10
+  S2 --> S10
+  S10 --> S11
+```
+
+**Wave Summary** (team_size: 1 — a wave is a set of stories that can be done in any order)
+
+| Wave | Stories | Independent? | Notes |
+|------|---------|--------------|-------|
+| 4 | 10.1, 10.2, 10.3, 10.4 | Yes — disjoint files | DB (needs P0) + cart + clickable card |
+| 5 | 10.5, 10.6, 10.7, 10.8 | Yes — disjoint files | Product page, header icon, cart page, address form |
+| 6 | 10.9 | — | Route guard; creates guard-only `app/checkout/page.tsx` |
+| 7 | 10.10 | — | Secure checkout; extends `app/checkout/page.tsx`, `lib/checkout.ts` |
+| 8 | 10.11 | — | Confirmation page + full smoke test |
+
+**Recommended order for one developer**: 10.3 → 10.4 → 10.1 → 10.2 → 10.5 → 10.6 → 10.7 → 10.8 → 10.9 → 10.10 → 10.11. (Putting the browser-only stories first gives a visible guest flow early; 10.1/10.2 need the dev database from P0 and the SQL test run.)
+
+Full graph: `docs/plans/dependency-graph.yml`. Per-story files: `docs/plans/stories/epic-10-story-10.N-*.md`.
+
+## 1. Overview
+
+**Success Criteria**: see `docs/requirements.md` Epic 10 → "Success Criteria (Measurable)" (10 items). Summary: build/lint/tsc/tests green; coverage ≥85% on new `lib/` logic (`npm run test:coverage`); 40 product pages; guard matrix correct; COD + UPI orders created atomically with server-computed totals; RLS isolation; 12-step happy path passes.
+
+**Epic Breakdown**:
+- **Epic 10: Aura Shopping Flow** (11 stories, 25 Helix points) — one vertical feature: browse → product → cart → (login) → address → checkout → confirmation. Testable milestones: after 10.7 (guest can build a cart), after 10.9 (guard matrix), after 10.11 (full purchase).
+
+**Deviation from the usual plan format (disclosed)**: story files are compact "deltas over Helix" rather than copies of the full Helix code, because Helix already holds the complete reference implementation and the user is tracking token usage; this mirrors how Story 7.3 was implemented. Full code is read from `docs/helix/documents/story-*.md` at implementation time.
+
+## EPIC 10: AURA SHOPPING FLOW
+
+**Owner**: DEV | **Goal**: Deliver the complete shopping flow with server-side price integrity, atomic orders and RLS-protected personal data.
+**Must Read References**: `docs/requirements.md` (Epic 10), `docs/architecture/design/02-target-architecture-brownfield.md` §10, `docs/architecture/design/03-patterns-and-standards-brownfield.md` §E10, `docs/data/data-model-epic10.md`, the story's Helix document.
+**Prerequisites**: P0 (dev Supabase project); `@vitest/coverage-v8` installed (done).
+**Completion**: all 11 stories done; gates green; DB tests pasted; 12-step smoke test passed; production migration + deploy decided separately.
+
+### Story 10.1: Address DB Migration — Helix 3.1
+**File**: `docs/plans/stories/epic-10-story-10.1-Address-DB-Migration.md` — Create `user_addresses` (+RLS, CHECKs) and `types/address.ts`; apply to dev only.
+### Story 10.2: Orders DB Migration (+ `place_order`) — Helix 4.1
+**File**: `docs/plans/stories/epic-10-story-10.2-Orders-DB-Migration-and-place_order.md` — `orders`, `order_items`, atomic `place_order()`; run the 14-test SQL script.
+### Story 10.3: Cart State Management (CartContext) — Helix 2.1
+**File**: `docs/plans/stories/epic-10-story-10.3-Cart-State-Management-CartContext.md` — pure cart logic + provider with safe hydration.
+### Story 10.4: Clickable Jewellery Card — Helix 1.1
+**File**: `docs/plans/stories/epic-10-story-10.4-Clickable-Jewellery-Card.md` — Link wrapper + `useFavorite` extraction.
+### Story 10.5: Product Detail Page — Helix 1.2
+**File**: `docs/plans/stories/epic-10-story-10.5-Product-Detail-Page.md` — 40 static pages with Add to Cart + heart.
+### Story 10.6: Cart Icon in Header — Helix 2.2
+**File**: `docs/plans/stories/epic-10-story-10.6-Cart-Icon-in-Header.md` — header bag icon + badge.
+### Story 10.7: Cart Page — Helix 2.3
+**File**: `docs/plans/stories/epic-10-story-10.7-Cart-Page.md` — cart list, steppers, summary, checkout button.
+### Story 10.8: Address Form & Server Action — Helix 3.2
+**File**: `docs/plans/stories/epic-10-story-10.8-Address-Form-and-Server-Action.md` — address page/form/`saveAddress` + validation.
+### Story 10.9: Checkout Route Guard — Helix 3.3
+**File**: `docs/plans/stories/epic-10-story-10.9-Checkout-Route-Guard.md` — proxy protection + guard-only checkout page.
+### Story 10.10: Secure Checkout Page — Helix 4.2
+**File**: `docs/plans/stories/epic-10-story-10.10-Secure-Checkout-Page.md` — checkout UI, server pricing/validation, `place_order`.
+### Story 10.11: Order Confirmation Page — Helix 4.3
+**File**: `docs/plans/stories/epic-10-story-10.11-Order-Confirmation-Page.md` — confirmation page + final smoke test.
+
+## Quality Gates
+**Per Story**: patterns followed (§E10), TDD for pure logic, tests pass (existing + new), ESLint 0 errors, `tsc --noEmit`, `next build`, AC met, review doc in `docs/stories-implemented/story-10.N-review.md` with pasted output, `docs/status.md` updated.
+**Per Wave/Epic**: all stories done, `npm run test:coverage` ≥85% on new `lib/` modules, SQL verification output pasted (after 10.2), `aire-review-code` then `aire-qa-validate`.
+**Final**: 12-step Helix smoke test; regression run; production migration + deployment only on explicit user go-ahead.
+
+## Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Only a production Supabase project exists | H | P0: create a dev project; never test against production |
+| SQL/verification script not yet executed | H | 10.1/10.2 gate: run on dev (Docker or Supabase) and fix `docs/data/` first |
+| DB cannot verify catalog prices (R1) | M (L today, H with real payments) | App-side pricing now; DB price table before real payments |
+| `JewelleryCard` anchor-wrap a11y / Epic 7 regression | M | 10.4 keeps existing tests green + manual keyboard check |
+| No component test harness | M | Logic in pure `lib/` modules; manual/QA evidence for UI |
+| Account deletion cascades to orders (AD-D3) | M later | Revisit before real sales |
+| Epic 9 production deploy still pending | M | Production migration + Story 9.3 smoke test extended after dev verification |
+
+## Project Tracking
+**Tracking**: local (`docs/status.md` Story Tracker); stories mirrored in Helix solution 1080 (read-only reference). **Repo**: argneshu/-jewellery-age-advisor
+
+## QA Manual Testing Groups
+
+### Epic 10: Aura Shopping Flow
+
+**Group 1** — Stories: 10.3, 10.4, 10.5, 10.6, 10.7
+As a **guest**, QA can browse recommendations, click a card, open a product page, add items, see the header badge update, open the cart, change quantities, remove items, refresh and keep the cart, and see “Proceed to Checkout” send a guest to login. Heart clicks must not navigate (mouse and keyboard); signed-in favorites still work.
+
+**Group 2** — Stories: 10.1 `[backend]`, 10.8, 10.9
+As a **signed-in user** (dev project), QA can follow the routing matrix (no address → address form; address → checkout; guest → login), save and edit an address with valid and invalid values, and see the address pre-filled afterwards. 10.1 provides the table and its isolation; user B must never see user A's address.
+
+**Group 3** — Stories: 10.2 `[backend]`, 10.10, 10.11
+As a **signed-in user with an address**, QA can place a COD order and a UPI order, see the cart cleared and the confirmation page with correct items/total/address, confirm that an empty cart cannot be ordered, that tampering with prices in the browser does not change the stored total, that double-clicking creates one order, and that another user gets a 404 for the order link. 10.2 provides the atomic order function and the SQL isolation tests.

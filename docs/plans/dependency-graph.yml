@@ -7,6 +7,15 @@ team_size: 1
 # can be picked without manual dependency analysis, even with one developer.
 
 shared_files:
+  # Epic 10 additions (files touched by 2+ Epic 10 stories, or central):
+  - aura/lib/checkout.ts            # 10.8 (address half) -> 10.10 (order half) -> 10.11 (helpers)
+  - aura/app/checkout/page.tsx      # 10.9 (guard-only) -> 10.10 (full page)
+  - aura/app/layout.tsx             # 10.3
+  - aura/app/globals.css            # 10.3 (new tokens gold-deep, rose-deep)
+  - aura/components/auth/AuthHeader.tsx   # 10.6
+  - aura/components/recommendations/JewelleryCard.tsx   # 10.4
+  - aura/lib/supabase/middleware.ts # 10.9
+  - aura/supabase/migrations/       # 10.1, 10.2
   # Baseline files that exist in aura/ and are shared across the whole
   # project even though no story in this Epic 7 plan modifies them directly.
   - aura/package.json
@@ -66,6 +75,167 @@ stories:
     # Verification-only story: no new/modified files, just manual + automated
     # checks across everything 7.1-7.3 produced.
 
+  - id: "10.1"
+    title: Address DB Migration
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 4
+    requires: []
+    enables: ["10.8"]
+    files_touched:
+      - aura/supabase/migrations/0002_user_addresses.sql
+      - aura/supabase/migrations/0002_user_addresses_rollback.sql
+      - aura/types/address.ts
+
+  - id: "10.2"
+    title: Orders DB Migration + place_order function
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 4
+    requires: []
+    enables: ["10.10"]
+    files_touched:
+      - aura/supabase/migrations/0003_orders.sql
+      - aura/supabase/migrations/0003_orders_rollback.sql
+      - aura/supabase/migrations/0004_place_order_fn.sql
+      - aura/supabase/migrations/0004_place_order_fn_rollback.sql
+
+  - id: "10.3"
+    title: Cart State Management (CartContext)
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 4
+    requires: []
+    enables: ["10.5", "10.6", "10.7", "10.9"]
+    files_touched:
+      - aura/lib/cart.ts
+      - aura/lib/cart.test.ts
+      - aura/context/CartContext.tsx
+      - aura/app/layout.tsx
+      - aura/app/globals.css
+
+  - id: "10.4"
+    title: Clickable Jewellery Card
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 4
+    requires: []
+    enables: ["10.5"]
+    files_touched:
+      - aura/lib/use-favorite.ts
+      - aura/lib/use-favorite.test.ts
+      - aura/components/recommendations/JewelleryCard.tsx
+
+  - id: "10.5"
+    title: Product Detail Page
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 5
+    requires: ["10.3", "10.4"]
+    enables: []
+    files_touched:
+      - aura/app/product/[id]/page.tsx
+      - aura/app/product/[id]/ProductDetail.tsx
+
+  - id: "10.6"
+    title: Cart Icon in Header
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 5
+    requires: ["10.3"]
+    enables: []
+    files_touched:
+      - aura/components/cart/CartIconLink.tsx
+      - aura/components/auth/AuthHeader.tsx
+
+  - id: "10.7"
+    title: Cart Page
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 5
+    requires: ["10.3"]
+    enables: []
+    files_touched:
+      - aura/app/cart/page.tsx
+      - aura/components/cart/CartItemRow.tsx
+      - aura/components/cart/CartSummary.tsx
+
+  - id: "10.8"
+    title: Address Form & Server Action
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 5
+    requires: ["10.1"]
+    enables: ["10.9"]
+    files_touched:
+      - aura/lib/checkout.ts
+      - aura/lib/checkout.test.ts
+      - aura/app/checkout/address/page.tsx
+      - aura/app/checkout/address/AddressForm.tsx
+      - aura/app/checkout/address/actions.ts
+
+  - id: "10.9"
+    title: Checkout Route Guard
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 6
+    requires: ["10.3", "10.8"]
+    enables: ["10.10"]
+    files_touched:
+      - aura/lib/supabase/route-rules.ts
+      - aura/lib/supabase/route-rules.test.ts
+      - aura/lib/supabase/middleware.ts
+      - aura/app/checkout/page.tsx
+
+  - id: "10.10"
+    title: Secure Checkout Page
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 7
+    requires: ["10.9", "10.2"]
+    enables: ["10.11"]
+    files_touched:
+      - aura/lib/checkout.ts
+      - aura/lib/checkout.test.ts
+      - aura/app/checkout/page.tsx
+      - aura/app/checkout/CheckoutClient.tsx
+      - aura/app/checkout/actions.ts
+
+  - id: "10.11"
+    title: Order Confirmation Page
+    epic: 10
+    jira: LOCAL
+    github: null
+    azure_devops: null
+    wave: 8
+    requires: ["10.10"]
+    enables: []
+    files_touched:
+      - aura/app/order-confirmation/[id]/page.tsx
+      - aura/lib/checkout.ts
+      - aura/lib/checkout.test.ts
+
+
 waves:
   - wave: 1
     stories: ["7.1"]
@@ -84,3 +254,34 @@ waves:
     assignments:
       - dev: 1
         stories: ["7.4"]
+
+  # ---- Epic 10 (Aura Shopping Flow) ----
+  - wave: 4
+    stories: ["10.1", "10.2", "10.3", "10.4"]
+    assignments:
+      - dev: 1
+        stories: ["10.1", "10.2", "10.3", "10.4"]
+
+  - wave: 5
+    stories: ["10.5", "10.6", "10.7", "10.8"]
+    assignments:
+      - dev: 1
+        stories: ["10.5", "10.6", "10.7", "10.8"]
+
+  - wave: 6
+    stories: ["10.9"]
+    assignments:
+      - dev: 1
+        stories: ["10.9"]
+
+  - wave: 7
+    stories: ["10.10"]
+    assignments:
+      - dev: 1
+        stories: ["10.10"]
+
+  - wave: 8
+    stories: ["10.11"]
+    assignments:
+      - dev: 1
+        stories: ["10.11"]

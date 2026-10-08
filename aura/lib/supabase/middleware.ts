@@ -1,8 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_PATHS = ["/favorites", "/api/favorites"];
-const AUTH_ONLY_WHEN_LOGGED_OUT_PATHS = ["/login", "/register"];
+import { isAuthOnlyWhenLoggedOutPath, isProtectedPath } from "./route-rules";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -34,17 +33,13 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const isProtected = PROTECTED_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
-  );
-  if (!user && isProtected) {
+  if (!user && isProtectedPath(pathname)) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirectedFrom", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  const isAuthOnlyPage = AUTH_ONLY_WHEN_LOGGED_OUT_PATHS.includes(pathname);
-  if (user && isAuthOnlyPage) {
+  if (user && isAuthOnlyWhenLoggedOutPath(pathname)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

@@ -1,7 +1,7 @@
 # Project Status
 
-**Last Updated**: 2026-09-29 22:25
-**Updated By**: DEVOPS
+**Last Updated**: 2026-10-08 12:00
+**Updated By**: UI_UX_DESIGNER
 **Overall Status**: 🟡 IN PROGRESS
 
 ---
@@ -25,9 +25,11 @@
 | Requirements | ✅ Done | ANALYST_PM_BROWNFIELD | 2026-09-29 | `docs/requirements.md` (revised against recovered Migration Document) | 2026-09-29 20:05 |
 | Target Architecture | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/02-target-architecture-brownfield.md` | 2026-09-29 20:20 |
 | Patterns | ✅ Done | ARCHITECT | 2026-09-29 | `docs/architecture/design/03-patterns-and-standards-brownfield.md` | 2026-09-29 20:35 |
+| UI/UX Design | ✅ Done | UI_UX_DESIGNER | 2026-10-08 | `docs/ui-ux/ui-ux-spec.md` (Epic 10; 3 approval gates passed) | 2026-10-08 13:30 |
 | Build Cycles | ⏸️ Not Started | — | — | — | 2026-09-29 19:21 |
 | Implementation Plan | ✅ Done | PRODUCT_OWNER | 2026-09-29 | `docs/plans/implementation-plan.md` (Stories 7.1-7.2 local; 7.3-7.4 tracked in Helix) | 2026-09-29 20:50 |
 | Epic 7: Favorites Completion | ✅ Done | AIRE_DEV | 2026-09-29 | 3/3 Helix stories done (7.1, 7.2, 7.3) | 2026-09-29 21:40 |
+| Epic 10: Aura Shopping Flow | 🟡 In Progress | ANALYST_PM_BROWNFIELD | 2026-10-08 | Requirements approved 2026-10-08: `docs/requirements.md` (Epic 10 section); patterns approved 2026-10-08 (`docs/architecture/design/03-patterns-and-standards-brownfield.md`, Epic 10 section); data design approved 2026-10-08 (scoped): `docs/data/data-model-epic10.md`; target architecture approved 2026-10-08: `docs/architecture/design/02-target-architecture-brownfield.md` (Epic 10 section); Helix snapshot `docs/helix/INDEX.md`; implementation plan approved 2026-10-08 (UI/UX done): `docs/plans/implementation-plan.md` Epic 10 + `docs/plans/dependency-graph.yml`; 10.3 done (62/62 tests, lib/cart.ts 100%/93% coverage: `docs/stories-implemented/story-10.3-review.md`); 6/11 done (10.1–10.6; DB stories applied to auradev only); 10.7 implemented (108/108 tests; click checks pending: `docs/stories-implemented/story-10.7-review.md`); 10.8 implemented (170/170 tests, lib/checkout.ts 100% coverage; manual save/edit verified by user: `docs/stories-implemented/story-10.8-review.md`); 10.9 implemented (193/193 tests, route-rules.ts 100%; curl matrix OK; signed-in matrix verified by user: `docs/stories-implemented/story-10.9-review.md`); 10.10 implemented (239/239 tests, lib/checkout.ts 100%; order checks pending: `docs/stories-implemented/story-10.10-review.md`); 10.11 implemented (249/249 tests, lib/checkout.ts 100%; checks pending: `docs/stories-implemented/story-10.11-review.md`) | 2026-10-08 |
 | Epic 8: Verify Against Original Screenshots | ✅ Done | AIRE_QA | 2026-09-29 | `docs/testing/validation-report-epic-8-2026-09-29.md` — CONDITIONAL PASS | 2026-09-29 22:00 |
 | Review | ⏸️ Not Started | AIRE_REVIEWER | — | — | 2026-09-29 19:21 |
 | QA | ✅ Done | AIRE_QA | 2026-09-29 | `docs/testing/validation-report-epic-8-2026-09-29.md` | 2026-09-29 22:00 |
@@ -121,6 +123,17 @@ _None yet — `aire-build-cycles` not run._
 | NO-CYCLE | 7.1 | Favorites API Route (GET/POST/DELETE) | 2026-09-29 | 2026-09-29 | 2026-09-29 21:05 |
 | NO-CYCLE | 7.2 | Favorite Toggle on JewelleryCard | 2026-09-29 | 2026-09-29 | 2026-09-29 21:20 |
 | NO-CYCLE | 7.3 | Favorites Page | 2026-09-29 | 2026-09-29 | 2026-09-29 21:40 |
+| NO-CYCLE | 10.1 | Address DB Migration (applied to auradev; 19/19 API checks) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.2 | Orders DB Migration + place_order (applied to auradev; defect found+fixed) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.3 | Cart State Management (CartContext) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.4 | Clickable Jewellery Card | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.5 | Product Detail Page | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.6 | Cart Icon in Header | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.7 | Cart Page — implemented, click checks pending | 2026-10-08 | — | 2026-10-08 12:30 |
+| NO-CYCLE | 10.8 | Address Form & Server Action (manual save/edit verified on dev DB) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.9 | Checkout Route Guard (signed-in matrix verified by user) | 2026-10-08 | 2026-10-08 | 2026-10-08 12:30 |
+| NO-CYCLE | 10.10 | Secure Checkout Page — implemented, end-to-end order checks pending | 2026-10-08 | — | 2026-10-08 12:30 |
+| NO-CYCLE | 10.11 | Order Confirmation Page — implemented, signed-in checks pending | 2026-10-08 | — | 2026-10-08 12:30 |
 
 **Note**: Story 7.3's spec was pulled from Helix (solution document 4936) rather than a local
 story file, per user direction — reviewed in `docs/stories-implemented/story-7.3-review.md`.

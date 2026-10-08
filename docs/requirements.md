@@ -263,3 +263,228 @@ true legacy code:
 already build on the Migration Document's versions. This note exists so a future reader
 understands which "original" is meant when this document or the Migration Document says
 "matches the original."
+
+---
+---
+
+# Epic 10 — Aura Shopping Flow (Product Detail → Cart → Address → Secure Checkout)
+
+**Type**: Brownfield Enhancement (new feature set on a live system)
+**Date**: 2026-10-08
+**Source**: Helix solution 1080 — Epic document 5877 (v5) + 11 story documents (5878–5888) + tech spec 5875 + architecture map 5872 (empty template, not used). Local synced copy: `docs/helix/` (snapshot `synced_at: 2026-10-08`; manifest `docs/helix/INDEX.md`).
+**Author**: ANALYST_PM_BROWNFIELD
+**Status**: Approved (user, 2026-10-08)
+
+> **Numbering.** Local Epic 10. Helix story numbers (1.1–4.3) are kept as "Helix X.Y" to avoid
+> colliding with local Story 7.x docs. Mapping is in "Story Index" below.
+> **Source of truth.** The Helix stories are the reference spec. Where this section adds to or
+> corrects them, the addition is labelled **[ADDED]** (user-approved hardening) or **[CORRECTED]**
+> (Helix text contradicts the real codebase). Nothing in a Helix story is silently dropped.
+> **Decision record.** On 2026-10-08 the user delegated all open design decisions to the analyst
+> ("whatever you think is best … make sure no error comes … database additions and migration
+> should be done carefully"). The decisions below (D1–D9) are the analyst's recommendations,
+> recorded so they can be revisited.
+
+## Project Overview
+
+Turn Aura from a recommendation tool into a purchase flow: card → product detail → cart
+(localStorage, works for guests) → login → delivery address → checkout (Cash on Delivery or UPI ID)
+→ order confirmation. Orders, order line items and one delivery address per user are persisted in
+Supabase with RLS. 11 stories, 25 story points (Helix estimate).
+
+## Decisions (D1–D9)
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| D1 | **Server-side price integrity [ADDED]**: `placeOrder` ignores client-sent prices/names. It accepts only `{ id, quantity }[]`, looks every item up in `JEWELLERY_ITEMS`, rejects unknown ids, quantities that are not integers in 1..10, empty carts, and duplicate ids, then computes subtotal/total itself. | Helix 4.2/tech-spec trust `JSON.parse` of browser data → a tampered price would create a cheap order. |
+| D2 | **Server-side validation [ADDED]**: `saveAddress` and `placeOrder` validate on the server (phone `^[0-9]{10}$`, pincode `^[0-9]{6}$`, required fields trimmed and length-limited, UPI id format `^[A-Za-z0-9._-]{2,100}@[A-Za-z]{2,64}$`, payment method ∈ {cod, upi}). Client `pattern` attributes stay as UX only. | Client validation is bypassable. |
+| D3 | **Atomic order creation [ADDED]**: order header + items are written in ONE database transaction via a Postgres function (`public.place_order`, `SECURITY INVOKER`, called with `supabase.rpc`), not two separate inserts. | Helix 4.2 inserts `orders` then `order_items`; a failure between them leaves an order with no items. |
+| D4 | **Empty-cart guard [ADDED]**: `/checkout` shows a redirect/empty state when the cart is empty; Place Order is disabled and `placeOrder` rejects empty carts. | Helix 4.2 would allow a ₹0 order. |
+| D5 | **No new npm dependencies.** Business logic (cart reducer, order validation/pricing, address validation) is implemented as pure functions in `lib/` and tested with the existing Vitest (node) setup. No jsdom / React Testing Library. UI components are verified by manual + QA validation, as in Epics 7–8. | Prior failure criterion #5: no new dependency without explicit approval. |
+| D6 | **Route protection**: add `/checkout` and `/order-confirmation` to `PROTECTED_PATHS` in `lib/supabase/middleware.ts` (existing pattern), AND keep the in-page auth/address checks that Helix 3.3/3.2/4.3 specify (defense in depth, and the address check is not possible in the proxy). `/cart` and `/product/*` stay public. | Matches the codebase's centralized-guard pattern while honouring Helix. |
+| D7 | **Numbering**: Epic 10; Helix story IDs kept as references (see Story Index). | Avoid collision with local 7.x. |
+| D8 | **Sequencing vs Epic 9**: build and verify locally first. Migrations 0002/0003 are applied to the production Supabase project as an explicit deploy step after local verification and after Epic 9's Vercel/Supabase setup exists. | Epic 9 is still waiting on user dashboard actions; no production DB change is made without an explicit go. |
+| D9 | **Roles**: no new auth roles; one derived state ("Authenticated User with saved address"). | See matrix. |
+
+## Current System Context
+
+**Architecture**: Next.js 16 App Router monolith (`aura/`), Supabase (auth + Postgres, RLS) via
+`@supabase/ssr`; auth state refreshed in `proxy.ts` → `lib/supabase/middleware.ts`; client
+helpers call `app/api/favorites` through `lib/favorites.ts`; business logic is pure functions
+in `lib/`; tests are Vitest in node mode (`lib/*.test.ts` only).
+**Verified facts** (read from code on 2026-10-08):
+- `JEWELLERY_ITEMS` has **40** items (Helix text says 37 **[CORRECTED]** → 40; `generateStaticParams` must cover 40 and the "all 37" done-criteria become "all 40").
+- Category union includes `"Hair Jewellery"`; `gradientForCategory(category: string)` exists in `lib/gradients.ts`.
+- `SHOW_PLACEHOLDER_IMAGES = false` in `JewelleryCard`: product/cart/checkout screens use the gradient swatch, not `next/image` (no images on new screens).
+- UI primitives present: `alert` (has `destructive`), `button` (`gradient`, `ghost`, `render={<Link/>}` pattern), `card`, `input`, `label`, `separator`, `select`, `slider`.
+- `AuthHeader` is an async Server Component with `gap-3` button group.
+- `app/layout.tsx` renders `<AuthHeader />` then `{children}`; there is no `CartProvider`.
+- No `"use server"` Server Actions exist yet; no `context/` directory; migrations dir has only `0001_favorites.sql`.
+- Favorite toggle logic lives inline in `JewelleryCard` (state + `listFavorites/addFavorite/removeFavorite`).
+- `.env.local.example` exists; no new env vars are needed.
+**Affected Modules**: see "Affected Modules" below.
+
+## Roles & Permissions Matrix
+
+| Role (canonical) | Description | Key Permissions (allow) | Explicitly Denied | Auth Source | Origin |
+|------------------|-------------|--------------------------|--------------------|--------------|--------|
+| Guest (unauthenticated) | Any visitor | Browse `/`, `/results`, `/product/[id]`, use cart (`cart:use-local`), view `/cart` | `/checkout`, `/checkout/address`, `/order-confirmation/*`, any order/address data | None (public routes; cart is browser-local) | Existing (cart permission New) |
+| Authenticated User | Logged-in Supabase user | Everything Guest can do, plus favorites (existing), `address:read-own`, `address:write-own`, `order:create-own`, `order:read-own` | Another user's address/orders/order items (RLS `auth.uid() = user_id`); updating or deleting orders (no policy exists) | Supabase Auth (email/password) | Existing (new permission keys New) |
+
+**Permission keys (new)**: `cart:use-local`, `address:read-own`, `address:write-own`, `order:create-own`, `order:read-own`.
+**Notes**: "has a saved address" is a derived state, not a role. No admin/staff/fulfilment role is introduced; order status changes (`processing`/`shipped`/…) have no writer in this epic.
+
+## Story Index
+
+| Local ID | Helix ID (doc id) | Title | Pts | Depends on (Helix) |
+|----------|-------------------|-------|-----|--------------------|
+| 10.1 | 3.1 (5878) | Address DB Migration (`0002_user_addresses.sql`, `types/address.ts`) | 1 | — |
+| 10.2 | 4.1 (5884) | Orders DB Migration (`0003_orders.sql`) + `place_order` function [ADDED] | 1 | — |
+| 10.3 | 2.1 (5886) | CartContext (+ pure reducer in `lib/cart.ts`) | 3 | — |
+| 10.4 | 1.1 (5880) | Clickable Jewellery Card | 1 | — |
+| 10.5 | 1.2 (5879) | Product Detail Page | 3 | 1.1, 2.1 |
+| 10.6 | 2.2 (5883) | Cart Icon in Header | 1 | 2.1 |
+| 10.7 | 2.3 (5882) | Cart Page | 3 | 2.1 |
+| 10.8 | 3.2 (5887) | Address Form & Server Action | 3 | 3.1 |
+| 10.9 | 3.3 (5885) | Checkout Route Guard (guard-only `app/checkout/page.tsx`, extended by 10.10) | 2 | 2.1, 3.2 |
+| 10.10 | 4.2 (5881) | Secure Checkout Page | 5 | 3.3, 4.1 |
+| 10.11 | 4.3 (5888) | Order Confirmation Page | 2 | 4.2 |
+
+Execution order: 10.1 → 10.2 → 10.3 → 10.4 → 10.5 → 10.6 → 10.7 → 10.8 → 10.9 → 10.10 → 10.11.
+
+## Functional Requirements
+
+### Product Detail (Helix 1.1, 1.2)
+- The entire `JewelleryCard` SHALL navigate to `/product/{id}`; the heart button SHALL call `preventDefault()` + `stopPropagation()` and SHALL NOT navigate; card visuals unchanged (hover shadow allowed). Works on `/results` and `/favorites`. (Helix 1.1)
+- `/product/[id]` SHALL render for all 40 catalog ids via `generateStaticParams()`, call `notFound()` for non-numeric/unknown ids (e.g. `/product/999`, `/product/abc`), and display gradient swatch, category, name, INR price, style chip, age range, tag chips, and an Add to Cart button. (Helix 1.2, corrected 37→40)
+- Add to Cart SHALL call `useCart().addItem()` and show "Added to cart ✓" + "View Cart →" (`/cart`). (Helix 1.2)
+- The product page SHALL include the favourite heart with the same behaviour as `JewelleryCard` (Helix 1.2 AC; missing from Helix's code snippet). **[CORRECTED]** The favorite logic is extracted into a shared hook (e.g. `useFavorite(itemId)`) used by both `JewelleryCard` and `ProductDetail`, with no behaviour change to the Epic 7 card (existing `lib/favorites.test.ts` must still pass).
+- Back control SHALL use `router.back()`; if there is no in-app history it SHALL fall back to `/` (tech spec mentions "← Browse"). **[ADDED]**
+
+### Cart (Helix 2.1, 2.2, 2.3)
+- `CartContext` SHALL expose `items, addItem, removeItem, updateQty, clearCart, totalItems, totalPrice`; adding an existing item increments quantity; `updateQty(id, ≤0)` removes; `useCart()` outside the provider throws a descriptive error; `CartProvider` wraps `AuthHeader` + `{children}` in `app/layout.tsx`. (Helix 2.1)
+- Cart state SHALL persist in `localStorage` key `aura_cart`, hydrated once on mount. **[CORRECTED]** Persistence MUST NOT write the initial empty state before hydration has completed (Helix's two-effect snippet overwrites the stored cart with `[]` and, under React StrictMode in dev, can lose the cart on refresh). Hydration SHALL also validate the stored JSON (array of `{id, name, category, price, imagePath, imageAlt, quantity}` with known ids and integer quantity 1..10) and discard anything malformed; all `localStorage` access SHALL be wrapped in try/catch (private mode / quota). **[ADDED]**
+- Quantity SHALL be capped at 10 per item **[ADDED]** (consistent with D1); the stepper "+" stops at 10.
+- Cart icon (`ShoppingBag`, lucide) SHALL show a rose badge with `totalItems` (hidden at 0, "9+" above 9) for guests and users, linking to `/cart`; implemented as a small client component so `AuthHeader` stays a Server Component. (Helix 2.2)
+- `/cart` SHALL list items (swatch, category, name, unit price, − qty +, line total, remove), show item count and subtotal, show the empty state with "Browse Jewellery" → `/`, disable Proceed to Checkout when empty, send guests to `/login?redirectedFrom=/checkout`, and logged-in users to `/checkout`. (Helix 2.3)
+
+### Address (Helix 3.1, 3.2, 3.3)
+- `/checkout/address` SHALL be reachable only when logged in (guest → `/login?redirectedFrom=/checkout/address`), pre-fill an existing address (heading "Update Delivery Address") or show a blank form ("Add Delivery Address"), validate fields client- and server-side (D2), upsert one row per user, redirect to `/checkout` on success, show server errors in `<Alert variant="destructive">`, and Cancel → `/cart`. (Helix 3.2 + D2)
+- `/checkout` SHALL route: logged out → `/login?redirectedFrom=/checkout`; logged in with no address → `/checkout/address`; logged in with address → render checkout; a user WITH an address is never blocked from `/checkout/address`. (Helix 3.3)
+- Story 10.9 delivers the guard-only `app/checkout/page.tsx`; Story 10.10 extends the same file. **[CORRECTED]** (Helix lists 4.2 as depending on 3.3 while 3.3's code is the head of 4.2's page.)
+
+### Checkout & Order (Helix 4.1, 4.2, 4.3)
+- `/checkout` SHALL show Order Summary (lines, qty, line totals, "Free Delivery", Grand Total), Delivery Address with "Change" → `/checkout/address`, and Payment Method radios (Cash on Delivery; UPI with required UPI ID). Place Order is disabled until valid and shows "Placing Order…" while pending. (Helix 4.2)
+- Empty cart on `/checkout` → redirect/empty state (D4).
+- `placeOrder` SHALL follow D1–D3: authenticated user only; recompute prices server-side; one transactional insert; return the new order id; the client then calls `clearCart()` and routes to `/order-confirmation/{id}`. The cart is cleared only after the server confirms success. Errors surface in `<Alert variant="destructive">` with a generic message (no raw database error text shown to the user). **[ADDED]**
+- Double-submit SHALL be prevented (button disabled while pending; server enforces by creating at most one order per request). **[ADDED]**
+- `/order-confirmation/[id]` SHALL require login, return `notFound()` for unknown, malformed (non-UUID), or other users' order ids, and show success icon, `#` + last 8 chars of the id (upper-case), items with qty and price, Grand Total, payment method (UPI id shown), delivery address from the snapshot, "Estimated delivery: 5–7 business days", and "Continue Shopping" → `/`. (Helix 4.3)
+
+## Database Requirements (careful-migration rules)
+
+Only **additive** changes. No existing table (`favorites`) or policy is altered or dropped.
+
+1. **`0002_user_addresses.sql`** — exactly the Helix 3.1 table/RLS (3 policies, `unique(user_id)`, update policy with `with check`). **[ADDED]** `check` constraints for `phone ~ '^[0-9]{10}$'` and `pincode ~ '^[0-9]{6}$'`, and `updated_at` maintained by the application on upsert.
+2. **`0003_orders.sql`** — Helix 4.1 tables/RLS (select + insert policies only; **no update/delete policy** so users cannot alter or cancel orders from the client). **[ADDED]** `check (subtotal >= 0 and total >= 0)`, `check (jsonb_typeof(address_snapshot) = 'object')`, `check ((payment_method = 'upi') = (upi_id is not null))`, `quantity` upper bound `<= 10`, `price >= 0`, an index on `orders(user_id, created_at desc)` and `order_items(order_id)`.
+3. **`public.place_order(p_payment_method text, p_upi_id text, p_items jsonb)`** — `SECURITY INVOKER` (RLS still applies; never `SECURITY DEFINER`), `set search_path = public`, `execute` granted to `authenticated` only (revoked from `public`/`anon`). It reads the caller's address from `user_addresses` (`auth.uid()`), builds the snapshot, inserts the order and items in one transaction, and returns the order id. Price authority stays in the application layer (the server action passes already-priced lines computed from `JEWELLERY_ITEMS`; the function re-checks `quantity` range and non-negative prices). Because the catalog is a static TS file, the database cannot independently verify prices — this limitation is accepted and documented.
+4. **Safety procedure for every migration**: (a) written as plain SQL files in `aura/supabase/migrations/` matching the `0001` header style; (b) a paired rollback script `…_rollback.sql` kept beside it (drops only objects created by that migration); (c) first applied to a **non-production Supabase project / branch**, never first to production; (d) after applying, verify with a two-user RLS test (user A cannot select/insert/update user B's rows; guest/anon gets nothing), a CHECK-constraint rejection test, and a `place_order` success + rollback-on-failure test; (e) take a Supabase backup/point-in-time marker before applying to production; (f) production apply only after explicit user go-ahead (D8); (g) migrations are idempotent where cheap (`create … if not exists` is NOT used for policies, so re-running must be avoided — record applied state in `docs/status.md`).
+5. `aire-data-design` SHALL be run before implementing 10.1/10.2 to produce the data model + contract + rollback plan.
+
+## Success Criteria (Measurable)
+
+1. `npm run build`, `npm run lint`, `tsc --noEmit` pass with zero errors; `npm run test` passes 100% (existing 16 tests unchanged + new tests).
+2. Statement/branch coverage ≥85% on all new `lib/` business logic (cart reducer + storage hydration validation, order pricing/validation, address validation, UPI validation, route-protection path list). Component/route coverage is N/A without jsdom (D5) and replaced by documented manual + QA evidence per story.
+3. `/product/1` … `/product/40` render (HTTP 200); `/product/999` and `/product/abc` return 404.
+4. Cart survives refresh and navigation; adding the same item twice gives quantity 2; stored garbage in `aura_cart` does not crash the app (empty cart).
+5. Logged out: `curl -I /checkout`, `/checkout/address`, `/order-confirmation/<uuid>` → 307 to `/login?redirectedFrom=…`; `/cart`, `/product/1` → 200.
+6. Logged in, no address: `/checkout` → `/checkout/address`; after save → `/checkout`; with address → checkout renders.
+7. A COD order and a UPI order each create exactly one `orders` row and the correct number of `order_items` rows; `total` equals the server-computed sum even if the request body contains altered prices (tamper test).
+8. Forced failure inside `place_order` leaves zero new `orders`/`order_items` rows (atomicity test).
+9. User B cannot read user A's address, order, or order items (RLS test) and cannot open A's `/order-confirmation/{id}` (404).
+10. Full happy-path smoke test from the Helix epic ("Full Happy Path Test", 12 steps) passes end-to-end.
+
+## Failure Criteria (Explicit)
+
+1. Any order whose stored total differs from the server-computed catalog total.
+2. Any order without items, or items without an order (non-atomic write).
+3. Any RLS gap that exposes another user's address/order data, or any policy allowing client UPDATE/DELETE on orders.
+4. Any regression in Epics 5–7: auth redirects, favorites API/RLS, `/favorites` page, favorite toggle on cards, recommendation engine regression baseline `[16,17,18,37,36,19]`.
+5. Any change to existing `favorites` table/policies or the recommendation engine.
+6. A new npm dependency, a new env var, or `SUPABASE_SERVICE_ROLE_KEY` use without explicit approval.
+7. Raw database/Supabase error text shown to end users; secrets or full UPI ids written to logs.
+8. A migration applied to production before being verified on a non-production database, or without a rollback script.
+9. Cart lost on refresh, or cart cleared before the server confirmed the order.
+10. Any `TODO` comments or placeholder code in delivered work (Production-Ready).
+
+## Technical Constraints
+
+- **Patterns to follow**: pure-function business logic + co-located Vitest tests; URL/redirect conventions `?redirectedFrom=`; RLS-enforced data access with the per-request server client (`lib/supabase/server.ts`); API/response conventions from `docs/architecture/design/03-patterns-and-standards-brownfield.md`; in-code breadcrumb comments for every deviation from Helix; `Button render={<Link/>}` pattern; design tokens (`rounded-aura-xl`, `border-border-soft`, `bg-ivory`, `shadow-soft`, `text-gold`, `font-serif`, `formatINR`).
+- **Server Actions** are new to this codebase; they SHALL return typed results (`{ ok: true, … } | { ok: false, error }`) instead of throwing across the boundary, and SHALL NOT swallow framework `redirect()` — redirect either happens outside any try/catch or the action returns the target path for the client to navigate. **[CORRECTED]** (Helix wraps `saveAddress`/`placeOrder` in client `try/catch`, which can swallow Next's redirect signal.)
+- **Database**: Supabase Postgres; additive migrations only; see "Database Requirements".
+- **Money**: INR integers (rupees), consistent with catalog; no paise, no tax/shipping (delivery always "Free").
+- **Payments**: COD and UPI **id capture only**. No payment gateway, no charge, no verification of the UPI id; order status defaults to `confirmed`. This must be stated on-screen as "UPI ID is recorded; payment is collected on delivery/confirmation" — wording to be finalized in UI/UX (OPEN-1).
+- **Test coverage**: minimum 85%; tests location `aura/lib/*.test.ts` (Vitest, node).
+- **PII**: addresses, phone numbers and UPI ids are personal data; stored only in RLS-protected tables; never logged.
+
+## Quality Gates
+
+- All tests pass (100%), coverage ≥85% on new `lib/` logic, build/lint/tsc clean.
+- Each story: TDD for logic, per-story review doc in `docs/stories-implemented/`, evidence pasted (test output, curl status codes, SQL verification output).
+- Migration gate: non-production verification output + rollback script reviewed before any production apply.
+- Code review (`aire-review-code`) before QA; QA validation (`aire-qa-validate`) with the 12-step smoke test; regression run (`aire-qa-regression`).
+- No TODO comments; follows existing patterns.
+
+## Explicit Scope
+
+### IN Scope
+- All 11 Helix stories (10.1–10.11) plus D1–D4 hardening, the `place_order` function, the shared `useFavorite` hook, `lib/cart.ts`, `lib/checkout.ts` (validation + pricing) and their tests.
+- `proxy.ts` / `lib/supabase/middleware.ts` protected-path additions (D6).
+- Documentation updates: `docs/status.md`, per-story review docs, data-design doc.
+
+### OUT of Scope
+- Real payment processing (gateway, UPI collect/intent, refunds), payment verification webhooks.
+- Order history list page, order cancel/edit, order status updates, admin/fulfilment, emails/SMS.
+- Multiple addresses per user, address book, pincode serviceability, tax/shipping rules.
+- Server-side/synced carts, cart merge on login, stock/inventory.
+- Real product photography; moving the catalog to Postgres; rate limiting; password reset.
+- Production deployment/migration apply (separate explicit step; Epic 9).
+- Any change to the recommendation engine, favorites schema or favorites API contract.
+
+### IMPACT Scope (indirect)
+- `JewelleryCard` (anchor wrapper): nested interactive element (heart `<button>` inside `<Link>`) — keyboard/focus behaviour and click handling must be re-verified on `/results` and `/favorites`; Epic 7.2 behaviour must not regress.
+- `app/layout.tsx` provider wrapping affects every page's render tree (hydration/SSR).
+- `AuthHeader` layout (extra icon) at narrow widths.
+- `proxy.ts` matcher/protected paths affect auth redirects site-wide.
+- Epic 9 deployment: production needs migrations 0002/0003 applied and the same env vars; smoke test (Story 9.3) should be extended to cover this flow.
+- Epic 8 baseline: no visual changes to the existing screens other than the header cart icon and card hover shadow.
+
+## Affected Modules
+
+New: `aura/context/CartContext.tsx`, `aura/lib/cart.ts`, `aura/lib/checkout.ts`, `aura/lib/useFavorite` (hook), `aura/types/address.ts`, `aura/components/cart/*`, `aura/app/product/[id]/*`, `aura/app/cart/page.tsx`, `aura/app/checkout/*` (incl. `address/`, `actions.ts`), `aura/app/order-confirmation/[id]/page.tsx`, `aura/supabase/migrations/0002_*.sql`, `0003_*.sql` (+ rollbacks).
+Modified: `components/recommendations/JewelleryCard.tsx`, `components/auth/AuthHeader.tsx`, `app/layout.tsx`, `lib/supabase/middleware.ts`.
+Untouched (must stay so): `lib/recommendation-engine.ts`, `lib/favorites.ts`, `app/api/favorites/*`, `supabase/migrations/0001_favorites.sql`, `data/jewellery.ts`.
+
+## Existing Patterns to Follow
+
+| Pattern | Reference |
+|---------|-----------|
+| Pure-function logic + co-located Vitest + locked regression baselines | `docs/architecture/current/01-recommendation-engine-deep-dive.md` |
+| RLS as enforcement point; per-request server client | `aura/supabase/migrations/0001_favorites.sql`, `aura/app/api/favorites/route.ts` |
+| Centralized route protection + `redirectedFrom` | `aura/lib/supabase/middleware.ts` |
+| API/response, error-handling and testing standards | `docs/architecture/design/03-patterns-and-standards-brownfield.md` |
+| Breadcrumb comments for deviations from the spec | all Epics 1–8 |
+
+## Design References
+
+**Location**: `SPEC/references/` holds only the Migration Document (no UI mocks). UI is specified by the Helix stories' markup (design tokens listed above) and the Helix "Design System Reference". No Figma/screenshots exist for these screens; `aire-ui-ux-design` is recommended before implementation (see OPEN-1).
+
+## Reference Files
+
+- `docs/helix/INDEX.md` and `docs/helix/documents/*` — snapshot of Helix solution 1080 (2026-10-08). Epic = `epic-aura-shopping-flow.md`; stories = `story-*.md`; the tech spec (`aura-shopping-flow-feature-specs.md`) is older — **where it disagrees with a story, the story wins** (e.g. `placeOrder` return value/error handling, `user_addresses` update policy `with check`).
+- `SPEC/references/Aura-Migration-Document-…` — unchanged authority for Epics 1–8.
+
+## Open Items (do not block approval; resolve in later steps)
+
+- **OPEN-1** (UI/UX): ✅ RESOLVED 2026-10-08 in `docs/ui-ux/ui-ux-spec.md` — UPI wording: “Your UPI ID is saved with this order. No payment is taken on this page.”; COD: “Pay when your order arrives.”
+- **OPEN-2** (Helix hygiene): Helix epic still says 37 items and Story 1.2 ids "all 37"; optionally update Helix after approval (not done automatically; Helix writes need explicit confirmation).
+- **OPEN-3** (data-design): final column constraints/index list for 0002/0003 — finalized in `aire-data-design`.
