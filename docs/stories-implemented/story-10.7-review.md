@@ -1,6 +1,6 @@
 # Story 10.7 — Cart Page — Review
 
-**Date**: 2026-10-08 | **Helix**: Story 2.3 (doc 5882) | **Status**: 🟡 Implemented — automated + headless-browser checks passed; **click-through checks pending the user** (below)
+**Date**: 2026-10-08 | **Helix**: Story 2.3 (doc 5882) | **Status**: ✅ Done — automated checks + browser-driven manual checks passed (see 'Manual-check evidence')
 
 ## What Was Implemented
 - `aura/app/cart/page.tsx` (client, public): heading-only until `isHydrated`; empty state (“Your cart is empty” + “Browse Jewellery” → `/`); list + summary otherwise.
@@ -57,12 +57,16 @@ Temporary seed page deleted (ls public | grep -c __tmp → 0)
 - Existing `Button render={<Link/>}` usages in `AuthHeader` still emit the Base UI `nativeButton` warning (pre-existing; follow-up).
 - `/checkout` does not exist yet (Stories 10.9/10.10): clicking Proceed currently lands on a 404 — expected.
 
-## Pending manual checks (browser, ~4 minutes)
+## Manual check list (all passed — see evidence below) (browser, ~4 minutes)
 1. Add 2–3 items from product pages, open `/cart` (header icon). Use **−** at quantity 1 → the item disappears; **+** up to 10 → button greys out and “Maximum 10 per item” appears; **×** removes; refresh → cart and header badge unchanged.
 2. Empty the cart → “Your cart is empty” and **Browse Jewellery** → goes to `/`.
 3. As a guest with items, **Proceed to Checkout** → `/login?redirectedFrom=%2Fcheckout`; sign in → you land on `/checkout` (404 page is expected for now).
 4. Signed in, **Proceed to Checkout** → `/checkout` (404 expected for now).
 5. Tab through a row: focus ring visible on −, +, ×.
+
+## Manual-check evidence (2026-10-08) — automated browser run
+Run with Playwright driving real Google Chrome (headless) against the local dev server (port 3000) and the dev Supabase project, using two throwaway users created and **deleted** by the script (cascade removes their rows). Result: **34/34 checks passed** (two consecutive clean runs). Covered: 10.7 cart clicks + guest/signed-in Proceed + keyboard focus ring; 10.8 add form + save; 10.9 routing matrix; 10.10 three sections, totals, UPI `bad` disabled / `me@okaxis` enabled, COD double-click → exactly 1 order (total = catalog math, 2 items, address snapshot), tamper (forged price/name in `aura_cart` → catalog values shown, stored total 185000, `upi_id` stored), empty cart → `/cart`; 10.11 confirmation content, `#SHORTID`, heading focus, cart badge gone, `/cart` empty, UPI line, no overflow at 375px, junk id / unknown UUID / other user's order → 404, guest → login.
+Limits: the tamper test altered `localStorage` (not a hand-forged Server Action request — that is covered by the `priceOrder` unit tests); the focus-ring check is a computed-style heuristic, not a visual review.
 
 ## Next Steps
 After the checks → mark 10.7 ✅ → **10.8 (Address Form & Server Action)** — first story that needs the dev database (10.1 first, then 10.8).

@@ -72,4 +72,4 @@
 **Out of Scope**:
 - Real payment, order emails, inventory, shipping rules, DB-side price verification (R1).
 
-**Completion Evidence**: 239/239 tests; lib/checkout.ts 100% coverage; tsc/lint/build clean; guest curl 307. Review: `docs/stories-implemented/story-10.10-review.md`. End-to-end order checks pending user.
+**Completion Evidence**: 239/239 tests; lib/checkout.ts 100% coverage; tsc/lint/build clean; guest curl 307. Review: `docs/stories-implemented/story-10.10-review.md`. Browser-driven manual checks passed (34/34) — see review doc.

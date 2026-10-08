@@ -73,7 +73,7 @@ this plan's current scope.
 
 ### Story 9.1 — Push to GitHub and connect Vercel
 
-1. **Push**: already done — this repo is on `main` at `https://github.com/argneshu/-jewellery-age-advisor`, up to date as of commit `557cbfb` (Epic 8 validation).
+1. **Push**: already done — this repo is on `main` at `https://github.com/argneshu/-jewellery-age-advisor`, up to date as of commit `557cbfb` (Epic 8 validation). Epic 10 was merged to `main` later; its migrations (`0002`–`0004`) must be applied to production by hand — see the Release Checklist.
 2. **Create/link Vercel project** (manual, in your browser — I cannot perform this):
    a. Go to https://vercel.com/new
    b. Import `argneshu/-jewellery-age-advisor` from GitHub (authorize Vercel's GitHub App if not already done).
@@ -92,6 +92,56 @@ this plan's current scope.
    a. Go to your Supabase project → Authentication → URL Configuration.
    b. Add your Vercel production URL (e.g., `https://<your-project>.vercel.app`) and `https://<your-project>.vercel.app/auth/callback` to the allowed redirect URLs list.
    c. If you later add a custom domain, add that too.
+
+---
+
+## Runbook: Release Checklist (every release to production)
+
+> **Why this exists.** `main` is the Production Branch, so **merging to `main` deploys to production
+> automatically** (see Environment Strategy). The database does *not* follow the code: schema changes
+> are applied by hand. Epic 10 shipped code to production before its tables existed there, and
+> `/checkout` failed (`Failed to load your address`). Follow this order to avoid a repeat.
+
+### 0. Before you start
+- [ ] Work is on a branch and merged through a **pull request**, not pushed straight to `main`. Consider protecting `main` in GitHub (Settings → Branches).
+- [ ] Know which Supabase project is **production** (Vercel → Settings → Environment Variables → `NEXT_PUBLIC_SUPABASE_URL`) and which is **dev** (`aura/.env.local`). Never run a migration against the wrong one.
+- [ ] Locally: `cd aura && npm run test && npm run lint && npx tsc --noEmit && npm run build` all pass (no CI runs these for you).
+
+### 1. Database first (only if the release adds or changes schema)
+- [ ] List new files in `aura/supabase/migrations/` since the last release. Each has a matching `*_rollback.sql`.
+- [ ] Already applied and verified on **dev**? If not, do that first.
+- [ ] Production Supabase → SQL Editor → run each new file **in numeric order**, one at a time, and confirm "Success" before the next. Epic 10 order: `0002_user_addresses.sql` → `0003_orders.sql` → `0004_place_order_fn.sql`.
+- [ ] Verify: Table Editor lists the new tables, each with RLS enabled. For Epic 10: `user_addresses`, `orders`, `order_items`. Check the function: `select proname from pg_proc where proname = 'place_order';` returns one row.
+- [ ] Keep the rollback file for each migration open in a tab (rollback order is the reverse: `0004` → `0003` → `0002`).
+
+Migrations are written to be additive: they do not alter existing tables, so running them *before* the new code is safe for the old code that is still live.
+
+### 2. Configuration
+- [ ] Vercel env vars unchanged, or any new ones added for **Production and Preview** (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`; never `SUPABASE_SERVICE_ROLE_KEY`). Env var changes only take effect on the next deployment.
+- [ ] Supabase → Authentication → URL Configuration still lists the production URL and `<url>/auth/callback`.
+
+### 3. Deploy
+- [ ] Open a PR; wait for Vercel's **Preview** deployment and test the changed flows on the preview URL (preview uses the same Supabase project as the env vars assigned to Preview — if that is production, treat test data as real).
+- [ ] Merge the PR to `main`. Watch Vercel → Deployments until the Production build shows **Ready**.
+
+### 4. Smoke test the live URL (Story 9.3)
+- [ ] Guest: `/`, get recommendations on `/results`, open a product page, add to cart, `/cart` works.
+- [ ] Guest → Proceed to Checkout → lands on `/login?redirectedFrom=/checkout`.
+- [ ] Register/sign in (email confirmation link returns to the production site).
+- [ ] Favourite an item and see it on `/favorites`.
+- [ ] Signed in, no address → `/checkout` sends you to `/checkout/address`; save an address; `/checkout` renders three sections.
+- [ ] Place a COD order → `/order-confirmation/<id>` shows the right items, total and address; header cart badge is gone.
+- [ ] In production Supabase: one new row in `orders` with the right `total` and matching `order_items`. Delete your test order and address rows afterwards (Table Editor) if they should not stay.
+- [ ] A second account opening the first account's order URL gets a 404.
+
+### 5. If something is wrong
+| Symptom | First move |
+|---|---|
+| Page errors only on new features, old pages fine | Vercel → Deployments → latest → **Runtime Logs**; `PGRST205` / `42P01` = a migration was not applied to this database → step 1 |
+| New code is broken in a way the DB cannot fix | Vercel rollback (below) — instant; the additive migrations can stay |
+| A migration itself is wrong | Run its `*_rollback.sql` in reverse order; **this deletes data in those tables** — export rows first if any real orders exist |
+
+After a rollback, write down what failed and add a check to this list.
 
 ---
 
@@ -134,7 +184,8 @@ flowchart LR
 | View preview deployment for a branch/PR | Vercel dashboard → Deployments (auto-listed per branch) |
 | Change env vars | Vercel → Settings → Environment Variables → redeploy after saving |
 | Rollback | Vercel → Deployments → "..." → Promote to Production |
-| Run tests locally before pushing | `cd aura && npm run test && npm run lint && npm run build` |
+| Run tests locally before pushing | `cd aura && npm run test && npm run lint && npx tsc --noEmit && npm run build` |
+| Release steps (DB first, then merge) | [Runbook: Release Checklist](#runbook-release-checklist-every-release-to-production) |
 
 ---
 
