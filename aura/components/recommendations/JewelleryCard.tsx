@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatINR } from "@/lib/format";
 import { whyText } from "@/lib/recommendation-engine";
 import { gradientForCategory } from "@/lib/gradients";
-import { createClient } from "@/lib/supabase/client";
-import { listFavorites, addFavorite, removeFavorite } from "@/lib/favorites";
+import { useFavorite } from "@/lib/use-favorite";
 import type { JewelleryItem, RecommendationPrefs } from "@/types/jewellery";
 
 // The Epic 4 placeholder images (picsum.photos, see public/images/jewellery/
@@ -31,94 +30,62 @@ export function JewelleryCard({
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = SHOW_PLACEHOLDER_IMAGES && !imageFailed;
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function checkAuthAndFavorite() {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (cancelled) return;
-      setIsSignedIn(!!user);
-      if (!user) return;
-
-      const favorites = await listFavorites().catch(() => []);
-      if (cancelled) return;
-      setIsFavorited(favorites.some((f) => f.jewelleryItemId === item.id));
-    }
-
-    checkAuthAndFavorite();
-    return () => {
-      cancelled = true;
-    };
-  }, [item.id]);
-
-  async function handleToggleFavorite() {
-    if (!isSignedIn) {
-      const query = searchParams.toString();
-      const redirectedFrom = query ? `${pathname}?${query}` : pathname;
-      router.push(`/login?redirectedFrom=${encodeURIComponent(redirectedFrom)}`);
-      return;
-    }
-    const nextState = !isFavorited;
-    setIsFavorited(nextState);
-    try {
-      if (nextState) {
-        await addFavorite(item.id);
-      } else {
-        await removeFavorite(item.id);
-      }
-    } catch {
-      setIsFavorited(!nextState);
-    }
-  }
+  // Favorite state/logic lives in useFavorite (extracted from this component in Epic 10, Story 10.4).
+  const { isFavorited, toggleFavorite } = useFavorite(item.id);
 
   return (
-    <Card className="overflow-hidden rounded-aura-xl border-border-soft bg-ivory shadow-soft">
-      <div
-        className="relative aspect-square w-full"
-        style={
-          !showImage
-            ? { background: gradientForCategory(item.category) }
-            : undefined
-        }
-      >
-        {showImage && (
-          <Image
-            src={item.imagePath}
-            alt={item.imageAlt}
-            fill
-            className="object-cover"
-            onError={() => setImageFailed(true)}
-          />
-        )}
-        <button
-          type="button"
-          onClick={handleToggleFavorite}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-ivory/80"
-          aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+    // Epic 10, Story 10.4 (Helix 1.1): the whole card opens the product page; the heart button
+    // below stops the click from navigating (mouse and keyboard).
+    <Link
+      href={`/product/${item.id}`}
+      className="group block rounded-aura-xl outline-none focus-visible:ring-2 focus-visible:ring-gold-deep focus-visible:ring-offset-2"
+    >
+      <Card className="overflow-hidden rounded-aura-xl border-border-soft bg-ivory shadow-soft transition-shadow group-hover:shadow-md">
+        <div
+          className="relative aspect-square w-full"
+          style={
+            !showImage
+              ? { background: gradientForCategory(item.category) }
+              : undefined
+          }
         >
-          <Heart
-            size={20}
-            className={isFavorited ? "fill-rose text-rose" : "text-ink-soft"}
-          />
-        </button>
-      </div>
-      <CardContent className="space-y-1 p-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">
-          {item.category}
-        </p>
-        <h3 className="font-serif text-lg text-ink">{item.name}</h3>
-        <p className="text-base font-semibold text-gold">{formatINR(item.price)}</p>
-        {prefs && <p className="text-sm text-ink-soft">{whyText(item, prefs)}</p>}
-      </CardContent>
-    </Card>
+          {showImage && (
+            <Image
+              src={item.imagePath}
+              alt={item.imageAlt}
+              fill
+              className="object-cover"
+              onError={() => setImageFailed(true)}
+            />
+          )}
+          {/* 44x44px hit area (UI/UX spec) around the unchanged 32px visual circle. */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleFavorite();
+            }}
+            className="absolute right-1.5 top-1.5 flex h-11 w-11 items-center justify-center"
+            aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ivory/80">
+              <Heart
+                size={20}
+                className={isFavorited ? "fill-rose text-rose" : "text-ink-soft"}
+              />
+            </span>
+          </button>
+        </div>
+        <CardContent className="space-y-1 p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">
+            {item.category}
+          </p>
+          <h3 className="font-serif text-lg text-ink">{item.name}</h3>
+          <p className="text-base font-semibold text-gold">{formatINR(item.price)}</p>
+          {prefs && <p className="text-sm text-ink-soft">{whyText(item, prefs)}</p>}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

@@ -16,8 +16,10 @@
   --color-ivory: var(--aura-ivory);
   --color-gold: var(--aura-gold);
   --color-gold-light: var(--aura-gold-light);
+  --color-gold-deep: var(--aura-gold-deep);
   --color-rose: var(--aura-rose);
   --color-rose-light: var(--aura-rose-light);
+  --color-rose-deep: var(--aura-rose-deep);
   --color-ink: var(--aura-ink);
   --color-ink-soft: var(--aura-ink-soft);
   --color-border-soft: var(--aura-border-soft);
@@ -68,8 +70,11 @@
   --aura-ivory: #fffdf8;
   --aura-gold: #c6952c;
   --aura-gold-light: #e8c874;
+  /* Epic 10 (docs/ui-ux/ui-ux-spec.md): WCAG-AA text/badge shades. gold-deep = small gold text (4.96:1 on ivory); rose-deep = cart badge bg (white 5.38:1). */
+  --aura-gold-deep: #8a6a1f;
   --aura-rose: #b76e79;
   --aura-rose-light: #e8b4bc;
+  --aura-rose-deep: #9d5560;
   --aura-ink: #2b2420;
   --aura-ink-soft: #6b5f53;
   --aura-border-soft: #e9dfcb;

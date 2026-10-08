@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { CartIconLink } from "@/components/cart/CartIconLink";
 
 export async function AuthHeader() {
   const supabase = await createClient();
@@ -23,9 +24,11 @@ export async function AuthHeader() {
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
+          <CartIconLink />
           {user ? (
             <>
-              <span className="text-sm text-ink-soft">{user.email}</span>
+              {/* Epic 10 (UI/UX spec): hide the email below 640px so the header does not overflow at 375px; Log out stays. */}
+              <span className="hidden text-sm text-ink-soft sm:inline">{user.email}</span>
               <LogoutButton />
             </>
           ) : (

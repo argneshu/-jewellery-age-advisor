@@ -16,7 +16,7 @@
         "https://helix-mcp.3pillarglobal.com/helix-atlas/mcp",
         "8765",
         "--header",
-        "x-solution-id:1048",
+        "x-solution-id:1080",
         "--static-oauth-client-info",
         "{\"client_id\":\"helix-local-mcp-agent\"}"
       ]

@@ -11,7 +11,7 @@
         "--static-oauth-client-info",
         "{\"client_id\":\"helix-local-mcp-agent\"}",
         "--header",
-        "x-solution-id: 1048"
+        "x-solution-id: 1080"
       ]
     }
   }
