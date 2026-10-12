@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
 import { CartItemRow } from "@/components/cart/CartItemRow";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export default function CartPage() {
   if (!isHydrated) {
     return (
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16">
+        <BackButton />
         <h2 className="mb-8 font-serif text-3xl text-ink">Your Cart</h2>
       </main>
     );
@@ -43,6 +45,7 @@ export default function CartPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16">
+      <BackButton />
       <h2 className="mb-8 font-serif text-3xl text-ink">Your Cart</h2>
       <ul className="space-y-4">
         {items.map((item) => (
