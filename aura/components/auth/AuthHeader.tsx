@@ -14,9 +14,11 @@ export async function AuthHeader() {
     <header className="px-4 pb-6 pt-10 text-center">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 text-left">
         <div>
-          <h1 className="bg-gradient-to-r from-gold-light to-rose bg-clip-text font-serif text-4xl tracking-wide text-transparent">
-            Aura
-          </h1>
+          <Link href="/" aria-label="Aura home">
+            <h1 className="bg-gradient-to-r from-gold-light to-rose bg-clip-text font-serif text-4xl tracking-wide text-transparent">
+              Aura
+            </h1>
+          </Link>
           <p className="mt-1 text-sm text-ink-soft">
             Jewellery recommended for who they are, not just what&apos;s in
             stock.

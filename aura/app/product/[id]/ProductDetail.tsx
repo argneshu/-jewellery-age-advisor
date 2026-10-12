@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { BackButton } from "@/components/BackButton";
 import { ProductImage } from "@/components/ProductImage";
 import { Button } from "@/components/ui/button";
 import { MAX_QTY } from "@/lib/cart";
@@ -19,21 +19,12 @@ import type { JewelleryItem } from "@/types/jewellery";
 // the gradient swatch, same as the results grid.
 
 export function ProductDetail({ item }: { item: JewelleryItem }) {
-  const router = useRouter();
   const { items, addItem } = useCart();
   const { isFavorited, toggleFavorite } = useFavorite(item.id);
   const [added, setAdded] = useState(false);
 
   const inCart = items.find((i) => i.id === item.id)?.quantity ?? 0;
   const atMax = inCart >= MAX_QTY;
-
-  function handleBack() {
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push("/");
-    }
-  }
 
   function handleAddToCart() {
     addItem({
@@ -49,13 +40,7 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-16">
-      <button
-        type="button"
-        onClick={handleBack}
-        className="mb-6 flex min-h-11 items-center gap-1 text-sm text-ink-soft hover:text-ink"
-      >
-        <ArrowLeft size={16} /> Back
-      </button>
+      <BackButton />
 
       <div className="grid gap-10 md:grid-cols-2">
         <ProductImage

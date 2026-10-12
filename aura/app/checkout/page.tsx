@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { BackButton } from "@/components/BackButton";
 import { createClient } from "@/lib/supabase/server";
 import { rowToUserAddress } from "@/lib/checkout";
 import { CheckoutClient } from "./CheckoutClient";
@@ -25,6 +26,7 @@ export default async function CheckoutPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-8">
+      <BackButton />
       <h2 className="mb-8 font-serif text-3xl text-ink">Secure Checkout</h2>
       <CheckoutClient address={rowToUserAddress(row)} />
     </main>
