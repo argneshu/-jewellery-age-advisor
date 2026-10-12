@@ -16,30 +16,38 @@ import { formatINR } from "@/lib/format";
 import type { JewelleryStyle, Occasion, Relationship } from "@/types/jewellery";
 
 const RELATIONSHIP_OPTIONS: { value: Relationship; label: string }[] = [
-  { value: "self", label: "Myself" },
-  { value: "daughter", label: "Daughter" },
-  { value: "mother", label: "Mother" },
-  { value: "wife", label: "Wife" },
-  { value: "friend", label: "Friend" },
-  { value: "sister", label: "Sister" },
+  { value: "self", label: "MYSELF" },
+  { value: "daughter", label: "DAUGHTER" },
+  { value: "mother", label: "MOTHER" },
+  { value: "wife", label: "WIFE" },
+  { value: "friend", label: "FRIEND" },
+  { value: "sister", label: "SISTER" },
 ];
 
 const OCCASION_OPTIONS: { value: Occasion; label: string }[] = [
-  { value: "birthday", label: "Birthday" },
-  { value: "wedding", label: "Wedding" },
-  { value: "anniversary", label: "Anniversary" },
-  { value: "festival", label: "Festival" },
-  { value: "everyday", label: "Everyday" },
-  { value: "graduation", label: "Graduation" },
+  { value: "birthday", label: "BIRTHDAY" },
+  { value: "wedding", label: "WEDDING" },
+  { value: "anniversary", label: "ANNIVERSARY" },
+  { value: "festival", label: "FESTIVAL" },
+  { value: "everyday", label: "EVERYDAY" },
+  { value: "graduation", label: "GRADUATION" },
 ];
 
 const STYLE_OPTIONS: { value: JewelleryStyle | ""; label: string }[] = [
-  { value: "", label: "No preference" },
-  { value: "minimal", label: "Minimal" },
-  { value: "traditional", label: "Traditional" },
-  { value: "statement", label: "Statement" },
-  { value: "modern", label: "Modern" },
+  { value: "", label: "NO PREFERENCE" },
+  { value: "minimal", label: "MINIMAL" },
+  { value: "traditional", label: "TRADITIONAL" },
+  { value: "statement", label: "STATEMENT" },
+  { value: "modern", label: "MODERN" },
 ];
+
+// The trigger must show the same text as the dropdown item, not the raw value.
+function labelFor<T extends string>(
+  options: { value: T; label: string }[],
+  value: T,
+): string {
+  return options.find((o) => o.value === value)?.label ?? value;
+}
 
 export function RecommendationForm() {
   const router = useRouter();
@@ -84,7 +92,7 @@ export function RecommendationForm() {
           onValueChange={(v) => setRelationship(v as Relationship)}
         >
           <SelectTrigger id="relationship" className="w-full">
-            <SelectValue />
+            <SelectValue>{(v: Relationship) => labelFor(RELATIONSHIP_OPTIONS, v)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {RELATIONSHIP_OPTIONS.map((opt) => (
@@ -100,7 +108,7 @@ export function RecommendationForm() {
         <Label htmlFor="occasion">Occasion</Label>
         <Select value={occasion} onValueChange={(v) => setOccasion(v as Occasion)}>
           <SelectTrigger id="occasion" className="w-full">
-            <SelectValue />
+            <SelectValue>{(v: Occasion) => labelFor(OCCASION_OPTIONS, v)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {OCCASION_OPTIONS.map((opt) => (
@@ -134,7 +142,7 @@ export function RecommendationForm() {
           onValueChange={(v) => setStyle(v as JewelleryStyle | "")}
         >
           <SelectTrigger id="style" className="w-full">
-            <SelectValue />
+            <SelectValue>{(v: JewelleryStyle | "") => labelFor(STYLE_OPTIONS, v)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STYLE_OPTIONS.map((opt) => (
