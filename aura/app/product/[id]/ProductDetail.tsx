@@ -104,19 +104,20 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
             </Button>
           )}
 
-          {/* The link depends on the cart, not on the local `added` flag, so it survives navigating
-              to the cart and coming back (the page remounts with added=false). */}
-          <div role="status" aria-live="polite">
+          {/* Shown whenever the item is in the cart (not just after a click in this mount), so it
+              survives navigating to the cart and coming back. Styled like the Add to Cart button
+              above so the two line up. */}
+          <div role="status" aria-live="polite" className="flex flex-col gap-3">
+            {added && <span className="text-sm font-medium text-ink">Added to cart ✓</span>}
             {inCart > 0 && (
-              <div className="flex items-center gap-3 rounded-aura-xl bg-ivory p-4">
-                {added && <span className="text-sm font-medium text-ink">Added to cart ✓</span>}
-                <Link
-                  href="/cart"
-                  className="inline-flex min-h-11 items-center text-sm font-semibold text-gold-deep hover:underline"
-                >
-                  View Cart →
-                </Link>
-              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                nativeButton={false}
+                render={<Link href="/cart" />}
+              >
+                <ShoppingBag size={18} className="mr-2" /> View Cart
+              </Button>
             )}
           </div>
         </div>
