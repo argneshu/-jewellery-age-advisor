@@ -104,10 +104,12 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
             </Button>
           )}
 
+          {/* The link depends on the cart, not on the local `added` flag, so it survives navigating
+              to the cart and coming back (the page remounts with added=false). */}
           <div role="status" aria-live="polite">
-            {added && (
+            {inCart > 0 && (
               <div className="flex items-center gap-3 rounded-aura-xl bg-ivory p-4">
-                <span className="text-sm font-medium text-ink">Added to cart ✓</span>
+                {added && <span className="text-sm font-medium text-ink">Added to cart ✓</span>}
                 <Link
                   href="/cart"
                   className="inline-flex min-h-11 items-center text-sm font-semibold text-gold-deep hover:underline"
