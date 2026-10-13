@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Heart, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { BackButton } from "@/components/BackButton";
 import { ProductImage } from "@/components/ProductImage";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import type { JewelleryItem } from "@/types/jewellery";
 // The photo is shown only for items with a curated image (lib/product-images.ts); other items keep
 // the gradient swatch, same as the results grid.
 
-export function ProductDetail({ item }: { item: JewelleryItem }) {
+export function ProductDetail({ item, info }: { item: JewelleryItem; info?: ReactNode }) {
   const { items, addItem } = useCart();
   const { isFavorited, toggleFavorite } = useFavorite(item.id);
   const [added, setAdded] = useState(false);
@@ -119,6 +119,8 @@ export function ProductDetail({ item }: { item: JewelleryItem }) {
           </div>
         </div>
       </div>
+
+      {info}
     </main>
   );
 }
