@@ -11,6 +11,7 @@ describe("isProtectedPath", () => {
     "/api/favorites/1",
     "/checkout/address",
     "/order-confirmation/abc-123",
+    "/admin/products/7",
   ])("protects sub-path %s", (path) => {
     expect(isProtectedPath(path)).toBe(true);
   });
@@ -22,7 +23,7 @@ describe("isProtectedPath", () => {
     }
   );
 
-  it.each(["/checkout-foo", "/favoritesX", "/checkoutx/address", "/order-confirmations", "/api/favoritesX"])(
+  it.each(["/checkout-foo", "/favoritesX", "/checkoutx/address", "/order-confirmations", "/api/favoritesX", "/administrator"])(
     "does not protect look-alike prefix %s",
     (path) => {
       expect(isProtectedPath(path)).toBe(false);

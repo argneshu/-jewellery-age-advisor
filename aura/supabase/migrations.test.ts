@@ -28,11 +28,21 @@ describe("SQL migrations", () => {
     expect(offenders).toEqual([]);
   });
 
-  it.each(files.filter((f) => !f.includes("rollback")))("%s: every create-policy statement is for a table with RLS enabled in the same file or earlier", (file) => {
+  // storage.objects is owned by Supabase and ships with RLS already enabled (it cannot be altered by us).
+  const SUPABASE_MANAGED_RLS_TABLES = new Set(["storage.objects"]);
+  const forwardFiles = files.filter((f) => !f.includes("rollback"));
+
+  it.each(forwardFiles)("%s: every create-policy statement is for a table with RLS enabled in this file or an earlier one", (file) => {
     const sql = readFileSync(path.join(dir, file), "utf8");
-    const policyTables = [...sql.matchAll(/create policy[\s\S]*?\bon\s+(public\.\w+)/gi)].map((m) => m[1]);
+    // This file plus every earlier forward migration (the filename order is the run order).
+    const upToHere = forwardFiles
+      .slice(0, forwardFiles.indexOf(file) + 1)
+      .map((f) => readFileSync(path.join(dir, f), "utf8"))
+      .join("\n");
+    const policyTables = [...sql.matchAll(/create policy[\s\S]*?\bon\s+([\w.]+)/gi)].map((m) => m[1]);
     for (const table of new Set(policyTables)) {
-      expect(sql).toMatch(new RegExp(`alter table ${table.replace(".", "\\.")} enable row level security`, "i"));
+      if (SUPABASE_MANAGED_RLS_TABLES.has(table)) continue;
+      expect(upToHere).toMatch(new RegExp(`alter table ${table.replace(".", "\\.")} enable row level security`, "i"));
     }
   });
 });

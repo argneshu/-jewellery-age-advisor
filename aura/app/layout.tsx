@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 import { AuthHeader } from "@/components/auth/AuthHeader";
 import { CartProvider } from "@/context/CartContext";
+import { ImageOverridesProvider } from "@/context/ImageOverridesContext";
+import { fetchImageOverrides } from "@/lib/supabase/public";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -20,17 +22,21 @@ export const metadata: Metadata = {
   description: "AI-assisted jewellery recommendations",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const imageOverrides = await fetchImageOverrides();
+
   return (
     <html
       lang="en"
       className={`${playfairDisplay.variable} ${poppins.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-ink font-sans">
-        <CartProvider>
-          <AuthHeader />
-          {children}
-        </CartProvider>
+        <ImageOverridesProvider overrides={imageOverrides}>
+          <CartProvider>
+            <AuthHeader />
+            {children}
+          </CartProvider>
+        </ImageOverridesProvider>
       </body>
     </html>
   );

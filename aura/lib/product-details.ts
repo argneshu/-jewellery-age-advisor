@@ -11,6 +11,8 @@ export interface ProductDetailsRow {
   stone: string | null;
   dimensions: string | null;
   care_instructions: string | null;
+  image_url?: string | null;
+  updated_at?: string;
 }
 
 export interface ProductSpec {

@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import { gradientForCategory } from "@/lib/gradients";
+import { useImageOverride } from "@/context/ImageOverridesContext";
 import { hasRealPhoto } from "@/lib/product-images";
 
 // Epic 10, Story 10.7a (Enhancement 1). The one place that decides "photo or gradient" for a product,
@@ -24,7 +25,10 @@ interface ProductImageProps {
 
 export function ProductImage({ item, sizes, preload, className = "", children }: ProductImageProps) {
   const [failed, setFailed] = useState(false);
-  const showImage = hasRealPhoto(item.id) && !failed;
+  // An admin-uploaded photo (Supabase Storage) wins over the static catalog photo.
+  const override = useImageOverride(item.id);
+  const src = override ?? item.imagePath;
+  const showImage = (override !== undefined || hasRealPhoto(item.id)) && !failed;
 
   return (
     <div
@@ -33,7 +37,7 @@ export function ProductImage({ item, sizes, preload, className = "", children }:
     >
       {showImage && (
         <Image
-          src={item.imagePath}
+          src={src}
           alt={item.imageAlt}
           fill
           sizes={sizes}
